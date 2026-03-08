@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  zoestm-api:
+    build: .
+    container_name: zoestm-api
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DEBUG=${DEBUG:-false}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DB_PATH=/app/apps/backend/data/zoestm.db
+      - WEBHOOK_SIGNING_KEY=${WEBHOOK_SIGNING_KEY:-change-me-in-production}
+    volumes:
+      - zoestm-db:/app/apps/backend/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+volumes:
+  zoestm-db:
+    driver: local

@@ -1,0 +1,1 @@
+ALTER TABLE alarms ADD COLUMN last_fired_at TEXT DEFAULT NULL;

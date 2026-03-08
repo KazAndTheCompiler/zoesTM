@@ -1,0 +1,13 @@
+appId: ai.zoe.zoestm
+productName: zoesTM
+directories:
+  output: dist
+files:
+  - main.js
+  - preload.js
+  - package.json
+asar: true
+linux:
+  target:
+    - AppImage
+  category: Utility

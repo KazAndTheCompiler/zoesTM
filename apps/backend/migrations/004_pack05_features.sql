@@ -1,0 +1,27 @@
+ALTER TABLE tasks ADD COLUMN recurrence_rule TEXT;
+ALTER TABLE tasks ADD COLUMN recurrence_parent_id TEXT;
+
+CREATE TABLE IF NOT EXISTS notifications (
+  id TEXT PRIMARY KEY,
+  level TEXT NOT NULL,
+  title TEXT NOT NULL,
+  body TEXT,
+  scope TEXT NOT NULL DEFAULT 'global',
+  is_read INTEGER NOT NULL DEFAULT 0,
+  archived INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS predownload_jobs (
+  id TEXT PRIMARY KEY,
+  track_ref TEXT NOT NULL,
+  state TEXT NOT NULL DEFAULT 'queued',
+  attempts INTEGER NOT NULL DEFAULT 0,
+  max_attempts INTEGER NOT NULL DEFAULT 5,
+  next_attempt_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE cards ADD COLUMN suspended INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE cards ADD COLUMN buried_until TEXT;

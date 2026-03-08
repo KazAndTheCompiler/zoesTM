@@ -1,0 +1,32 @@
+# Python
+.venv/
+.venv*/
+.python-version
+__pycache__/
+*.pyc
+.pytest_cache/
+.pyright/
+.pylance/
+
+# Node
+node_modules/
+apps/frontend/node_modules/
+apps/desktop/node_modules/
+
+# Runtime data
+apps/backend/data/
+*.db
+*.sqlite
+*.sqlite3
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
+
+# Logs/artifacts
+*.log
+coverage/
+dist/
+build/
+apps/frontend/dist/
