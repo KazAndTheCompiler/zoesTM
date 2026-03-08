@@ -158,7 +158,7 @@ ZoesTM is and will always be free.
 
 If it helps you and you want to say thanks:
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-orange?style=flat&logo=buy-me-a-coffee)](https://buymeacoffee.com/yourusername)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-orange?style=flat&logo=buy-me-a-coffee)](https://buymeacoffee.com/kazandthecompiler)
 
 Donations go toward keeping the project alive and possibly upgrading the salvaged 2011 laptop it was partly developed on.
 
