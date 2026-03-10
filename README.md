@@ -145,7 +145,7 @@ Copy `.env.example` to `.env`. Key variables:
 
 ## Roadmap
 
-- [ ] Full calendar with skins (yes, multiple free skins, you're welcome)
+- [ ] Full calendar with skins (Still fighting polish bugs)
 - [ ] Emergency dopamine button with rotating labels
 - [ ] Full Anki spaced repetition fidelity
 - [ ] Mobile-friendly UI
@@ -170,4 +170,4 @@ MIT — do whatever you want with it.
 
 ---
 
-*Built by [KazAndTheCompiler](https://github.com/yourusername) — 2 months into learning, built something anyway.*
+*Built by [KazAndTheCompiler](https://github.com/KazAndTheCompiler) — 2 months into learning, built something anyway.*
