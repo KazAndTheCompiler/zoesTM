@@ -1,8 +1,10 @@
-# ZoesTM
+# ZoesTM Apps
 
 > A free, local-first productivity tool built by someone with AuDHD who got tired of paying $9/month for habit tracking.
 
-**ZoesTM** is a task manager, habit tracker, Pomodoro timer, and spaced repetition system — built for brains that need real tools, not demo tiers.
+This folder contains the ZoesTM side of the split release.
+
+For the calendar app and ADRs, see `../zoescal/` in the repo root.
 
 It's free. It will stay free.
 
@@ -20,13 +22,20 @@ I have AuDHD. I came out of 3 years of illness and needed tools that actually wo
 
 ---
 
+## Split note
+
+- `apps/` = ZoesTM
+- `zoescal/` = ZoesCal
+- `release/v1.0.0` = legacy all-in-one skeleton
+- `main` = split `v1.0.1`
+
 ## Features
 
 - **Task management** — quick add, tagging, filtering, Eisenhower matrix prioritization
 - **Habit tracking** — unlimited (yes, unlimited) habits with streaks
 - **Pomodoro timer** — focus sessions with persistence
 - **Spaced repetition** — Anki-compatible review system (APKG import/export experimental)
-- **Calendar view** — schedule and deadline management
+- **Calendar feed** — exports task/habit/alarm blocks for ZoesCal import
 - **Alarms + TTS** — audio reminders via text-to-speech
 - **Media player queue** — yt-dlp integration for background audio
 - **Emergency dopamine button** — Goggins. You'll know when you need it.

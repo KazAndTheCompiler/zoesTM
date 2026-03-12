@@ -1,8 +1,10 @@
-# ZoesTM
+# ZoesTM + ZoesCal
 
 > A free, local-first productivity tool built by someone with AuDHD who got tired of paying $9/month for habit tracking.
 
-**ZoesTM** is a task manager, habit tracker, Pomodoro timer, and spaced repetition system — built for brains that need real tools, not demo tiers.
+**ZoesTM** is the execution side: tasks, habits, alarms, focus, review, commands, and desktop workflows.
+
+**ZoesCal** is the separate calendar side: day, week, and month views, skins, external calendar sync, and imported mirrors from ZoesTM.
 
 It's free. It will stay free.
 
@@ -20,13 +22,30 @@ I have AuDHD. I came out of 3 years of illness and needed tools that actually wo
 
 ---
 
+## v1.0.1 Split Release
+
+- `main` now tracks the split architecture release (`v1.0.1`)
+- `release/v1.0.0` preserves the older all-in-one skeleton release
+- ZoesTM and ZoesCal now live in the same repo as separate products with a shared contract
+
+## Repo layout
+
+- `apps/` - ZoesTM app surfaces
+  - `apps/backend` - ZoesTM FastAPI backend
+  - `apps/frontend` - ZoesTM React frontend
+  - `apps/desktop` - desktop shell assets
+- `zoescal/` - ZoesCal app
+  - `zoescal/backend` - ZoesCal FastAPI backend
+  - `zoescal/frontend` - ZoesCal React/Vite frontend
+  - `zoescal/shared` - ADRs and contracts shared across the split
+
 ## Features
 
 - **Task management** — quick add, tagging, filtering, Eisenhower matrix prioritization
 - **Habit tracking** — unlimited (yes, unlimited) habits with streaks
 - **Pomodoro timer** — focus sessions with persistence
 - **Spaced repetition** — Anki-compatible review system (APKG import/export experimental)
-- **Calendar view** — schedule and deadline management
+- **Separate calendar app** — ZoesCal owns day/week/month views and skins
 - **Alarms + TTS** — audio reminders via text-to-speech
 - **Media player queue** — yt-dlp integration for background audio
 - **Emergency dopamine button** — Goggins. You'll know when you need it.
@@ -39,8 +58,10 @@ I have AuDHD. I came out of 3 years of illness and needed tools that actually wo
 
 | Layer | Tech |
 |---|---|
-| Backend | FastAPI + SQLite |
-| Frontend | React + Vite + TypeScript |
+| ZoesTM backend | FastAPI + SQLite |
+| ZoesTM frontend | React + Vite + TypeScript |
+| ZoesCal backend | FastAPI + SQLite |
+| ZoesCal frontend | React + Vite + TypeScript |
 | Desktop | Electron |
 | Migrations | Plain SQL |
 | Testing | Python unittest + Playwright e2e |
@@ -56,14 +77,30 @@ I have AuDHD. I came out of 3 years of illness and needed tools that actually wo
 ### Setup
 
 ```bash
-git clone https://github.com/yourusername/zoesTM
+git clone https://github.com/KazAndTheCompiler/zoesTM
 cd zoesTM
 cp .env.example .env
 ./scripts/bootstrap_dev.sh
 npm run dev
 ```
 
-`bootstrap_dev.sh` handles everything — creates `.venv`, installs all dependencies, runs migrations, seeds demo data.
+`bootstrap_dev.sh` handles the ZoesTM side. ZoesCal lives in `zoescal/` and can be started separately.
+
+### Start the split apps manually
+
+```bash
+# ZoesTM backend
+.venv/bin/python -m uvicorn apps.backend.app.main:app --reload --port 8000
+
+# ZoesTM frontend
+npm --prefix apps/frontend run dev
+
+# ZoesCal backend
+python3 -m uvicorn zoescal.backend.app.main:app --reload --port 8001
+
+# ZoesCal frontend
+npm --prefix zoescal/frontend run dev -- --port 5174
+```
 
 ### Desktop app (Electron)
 
@@ -99,11 +136,14 @@ docker-compose up
 ### Run tests
 
 ```bash
-# Backend
+# ZoesTM backend
 .venv/bin/python -m unittest discover -s apps/backend/tests -p "test_*.py" -q
 
-# Frontend build check
+# ZoesTM frontend build check
 npm --prefix apps/frontend run build
+
+# ZoesCal frontend build check
+npm --prefix zoescal/frontend run build
 
 # Full quality pass
 ./scripts/quality_pass.sh
