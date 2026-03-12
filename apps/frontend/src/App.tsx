@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, useRef, type ReactNode } from 'react';
 import { BASE, jdelete, jget, jpatch, jpost } from './api';
 import ErrorBoundary from './ErrorBoundary';
+import FloatingGoggins from './FloatingGoggins';
 import './styles.css';
 
 type RouteKey =
@@ -953,6 +954,7 @@ export default function App() {
         {route === 'review-anki' && ReviewAnkiBox({})}
         {route === 'commands' && CommandsBox({})}
       </main>
+      <FloatingGoggins />
     </div>
   );
 }

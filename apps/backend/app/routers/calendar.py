@@ -109,3 +109,8 @@ def feed(from_: str, to: str):
             entries.append(entry)
 
     return {"from": from_, "to": to, "entries": entries, "owner": "zoestm"}
+
+
+# Endpoints map:
+# Owner: zoestm-calendar-bridge
+# GET /calendar/feed

@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from .errors import ApiError, error_payload
 from .routers import (
     tasks,
@@ -20,6 +21,7 @@ from .routers import (
     review,
     commands,
     player,
+    goggins,
 )
 from .routers import integrations, meta, ops, notifications, search, health
 from .routers import anki_apkg
@@ -184,7 +186,13 @@ app.include_router(
 )
 app.include_router(search.router, prefix="/search", tags=["search"])
 app.include_router(player.router, prefix="/player", tags=["player"])
+app.include_router(goggins.router, prefix="/goggins", tags=["goggins"])
 app.include_router(health.router, tags=["health"])
+app.mount(
+    "/static",
+    StaticFiles(directory=Path(__file__).resolve().parents[1] / "static"),
+    name="static",
+)
 
 
 @app.get("/health")
