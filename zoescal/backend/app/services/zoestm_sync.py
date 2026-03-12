@@ -52,7 +52,7 @@ async def sync_zoestm_feed() -> dict[str, int]:
         "to": end.isoformat().replace("+00:00", "Z"),
     }
     imported = 0
-    async with httpx.AsyncClient(timeout=20.0) as client:
+    async with httpx.AsyncClient(timeout=5.0) as client:
         response = await client.get(_feed_url(), params=params)
         response.raise_for_status()
         payload = response.json()
