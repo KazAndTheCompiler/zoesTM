@@ -1,0 +1,176 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#1a1a2a"/>
+      <stop offset="100%" stop-color="#080810"/>
+    </radialGradient>
+    <radialGradient id="furGrad" cx="35%" cy="25%" r="65%">
+      <stop offset="0%" stop-color="#c0bdb8"/>
+      <stop offset="100%" stop-color="#7a7872"/>
+    </radialGradient>
+    <radialGradient id="eyeLeft" cx="40%" cy="35%" r="55%">
+      <stop offset="0%" stop-color="#d4a820"/>
+      <stop offset="60%" stop-color="#a07800"/>
+      <stop offset="100%" stop-color="#6a4e00"/>
+    </radialGradient>
+    <radialGradient id="eyeRight" cx="40%" cy="35%" r="55%">
+      <stop offset="0%" stop-color="#d4a820"/>
+      <stop offset="60%" stop-color="#a07800"/>
+      <stop offset="100%" stop-color="#6a4e00"/>
+    </radialGradient>
+    <filter id="eyeGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="bodyGlow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <!-- windowsill -->
+    <linearGradient id="sillGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3a3028"/>
+      <stop offset="100%" stop-color="#1e1810"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background - dark window at night -->
+  <rect width="400" height="400" rx="40" fill="url(#bgGrad)"/>
+
+  <!-- Window pane suggestion - very subtle cross -->
+  <line x1="200" y1="0" x2="200" y2="280" stroke="#ffffff" stroke-width="1" opacity="0.04"/>
+  <line x1="0" y1="140" x2="400" y2="140" stroke="#ffffff" stroke-width="1" opacity="0.04"/>
+
+  <!-- Distant city lights - she's looking DOWN at everything -->
+  <circle cx="60" cy="60" r="2" fill="#ffd080" opacity="0.15"/>
+  <circle cx="80" cy="45" r="1.5" fill="#ffd080" opacity="0.12"/>
+  <circle cx="340" cy="55" r="2" fill="#ffd080" opacity="0.13"/>
+  <circle cx="320" cy="72" r="1.5" fill="#ffd080" opacity="0.10"/>
+  <circle cx="130" cy="38" r="1" fill="#80c0ff" opacity="0.12"/>
+  <circle cx="280" cy="42" r="1" fill="#80c0ff" opacity="0.10"/>
+  <rect x="50" y="70" width="18" height="28" rx="2" fill="#ffd080" opacity="0.05"/>
+  <rect x="330" y="65" width="14" height="22" rx="2" fill="#ffd080" opacity="0.05"/>
+
+  <!-- ── WINDOWSILL ── -->
+  <rect x="0" y="318" width="400" height="82" rx="0" fill="url(#sillGrad)"/>
+  <rect x="0" y="315" width="400" height="8" rx="2" fill="#4a3e30"/>
+  <!-- Sill edge highlight -->
+  <rect x="0" y="315" width="400" height="2" fill="#6a5a48" opacity="0.6"/>
+
+  <!-- ── TAIL — wrapped tight around paws, gargoyle style ── -->
+  <path d="M245 318 C275 310 295 295 290 275 C285 258 268 258 265 272 C262 284 272 298 258 308 C248 315 235 318 220 318"
+        stroke="#8a8880" stroke-width="16" fill="none" stroke-linecap="round"/>
+  <path d="M245 318 C275 310 295 295 290 275 C285 258 268 258 265 272 C262 284 272 298 258 308"
+        stroke="#666460" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.5"/>
+
+  <!-- ── BODY — slim, upright, perched ── -->
+  <!-- Narrow torso, sitting tall like she owns this windowsill -->
+  <ellipse cx="200" cy="285" rx="58" ry="50" fill="url(#furGrad)"/>
+
+  <!-- Tabby body stripes - subtle -->
+  <path d="M168 268 C175 260 180 268 175 275" stroke="#909088" stroke-width="2.5" fill="none" opacity="0.5"/>
+  <path d="M178 262 C185 254 190 262 185 270" stroke="#909088" stroke-width="2" fill="none" opacity="0.4"/>
+  <path d="M230 268 C225 260 220 268 225 275" stroke="#909088" stroke-width="2.5" fill="none" opacity="0.5"/>
+
+  <!-- Chest/belly - lighter -->
+  <ellipse cx="200" cy="295" rx="32" ry="38" fill="#d8d4cc" opacity="0.7"/>
+
+  <!-- ── FRONT PAWS — tucked in, neat, judging ── -->
+  <!-- Left paw tucked -->
+  <ellipse cx="178" cy="322" rx="22" ry="10" fill="#a8a5a0"/>
+  <ellipse cx="164" cy="324" rx="8" ry="6" fill="#bab8b2"/>
+  <ellipse cx="178" cy="326" rx="8" ry="6" fill="#bab8b2"/>
+  <ellipse cx="192" cy="324" rx="8" ry="6" fill="#bab8b2"/>
+
+  <!-- Right paw tucked -->
+  <ellipse cx="222" cy="322" rx="22" ry="10" fill="#a8a5a0"/>
+  <ellipse cx="208" cy="324" rx="8" ry="6" fill="#bab8b2"/>
+  <ellipse cx="222" cy="326" rx="8" ry="6" fill="#bab8b2"/>
+  <ellipse cx="236" cy="324" rx="8" ry="6" fill="#bab8b2"/>
+
+  <!-- ── NECK — slim ── -->
+  <rect x="184" y="228" width="32" height="22" rx="10" fill="#b0ada8"/>
+
+  <!-- ── HEAD — slim, angular, perched forward slightly ── -->
+  <!-- Head shape - more angular than round, tilted slightly down (looking down at you) -->
+  <ellipse cx="200" cy="195" rx="68" ry="60" fill="url(#furGrad)" transform="rotate(-3, 200, 195)"/>
+
+  <!-- Cheek fur — slim, not puffy -->
+  <ellipse cx="148" cy="210" rx="16" ry="11" fill="#c0bdb8" opacity="0.4"/>
+  <ellipse cx="252" cy="210" rx="16" ry="11" fill="#c0bdb8" opacity="0.4"/>
+
+  <!-- Forehead tabby M -->
+  <path d="M183 158 C186 148 190 145 193 151" stroke="#787670" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.8"/>
+  <path d="M200 155 C200 145 200 142 200 148" stroke="#787670" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.8"/>
+  <path d="M217 158 C214 148 210 145 207 151" stroke="#787670" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.8"/>
+
+  <!-- ── EARS — tall, narrow, alert but disdainful ── -->
+  <!-- Left ear -->
+  <path d="M142 158 C130 118 144 100 162 122 Z" fill="#a8a5a0"/>
+  <path d="M144 155 C135 122 145 108 159 125 Z" fill="#c4828a" opacity="0.55"/>
+  <!-- Left ear tuft -->
+  <path d="M138 122 C135 112 140 108 144 116" stroke="#888582" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
+
+  <!-- Right ear -->
+  <path d="M258 158 C270 118 256 100 238 122 Z" fill="#a8a5a0"/>
+  <path d="M256 155 C265 122 255 108 241 125 Z" fill="#c4828a" opacity="0.55"/>
+  <!-- Right ear tuft -->
+  <path d="M262 122 C265 112 260 108 256 116" stroke="#888582" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
+
+  <!-- ── EYES — the main event. Heavy lidded. Judging. ── -->
+
+  <!-- Left eye -->
+  <ellipse cx="174" cy="192" rx="20" ry="17" fill="#111111"/>
+  <!-- Iris -->
+  <ellipse cx="174" cy="193" rx="14" ry="13" fill="url(#eyeLeft)" filter="url(#eyeGlow)"/>
+  <!-- Pupil - narrow slit, contemptuous -->
+  <ellipse cx="174" cy="193" rx="3.5" ry="11" fill="#060606"/>
+  <!-- Shine -->
+  <circle cx="168" cy="188" r="3" fill="#fff" opacity="0.65"/>
+  <circle cx="179" cy="197" r="1.2" fill="#fff" opacity="0.25"/>
+  <!-- THE LID — heavy, drooped, maximum judgment -->
+  <path d="M154 185 C160 178 188 178 194 185" fill="#9a9890"/>
+  <!-- Lid crease -->
+  <path d="M155 186 C161 180 187 180 193 186" stroke="#7a7870" stroke-width="1.2" fill="none" opacity="0.8"/>
+  <!-- Lower lid barely visible — squinting -->
+  <path d="M156 200 C162 204 186 204 192 200" stroke="#7a7870" stroke-width="1" fill="none" opacity="0.4"/>
+
+  <!-- Right eye -->
+  <ellipse cx="226" cy="192" rx="20" ry="17" fill="#111111"/>
+  <!-- Iris -->
+  <ellipse cx="226" cy="193" rx="14" ry="13" fill="url(#eyeRight)" filter="url(#eyeGlow)"/>
+  <!-- Pupil -->
+  <ellipse cx="226" cy="193" rx="3.5" ry="11" fill="#060606"/>
+  <!-- Shine -->
+  <circle cx="220" cy="188" r="3" fill="#fff" opacity="0.65"/>
+  <circle cx="231" cy="197" r="1.2" fill="#fff" opacity="0.25"/>
+  <!-- THE LID -->
+  <path d="M206 185 C212 178 240 178 246 185" fill="#9a9890"/>
+  <path d="M207 186 C213 180 239 180 245 186" stroke="#7a7870" stroke-width="1.2" fill="none" opacity="0.8"/>
+  <path d="M208 200 C214 204 238 204 244 200" stroke="#7a7870" stroke-width="1" fill="none" opacity="0.4"/>
+
+  <!-- ── NOSE — small, refined, above it all ── -->
+  <path d="M195 215 L200 210 L205 215 L200 219 Z" fill="#c4828a" opacity="0.9"/>
+
+  <!-- ── MOUTH — one straight line. Done with you. ── -->
+  <path d="M194 222 L206 222" stroke="#808078" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <!-- Micro downturn at corners -->
+  <path d="M194 222 C192 223 190 225 189 224" stroke="#707068" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M206 222 C208 223 210 225 211 224" stroke="#707068" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+  <!-- ── WHISKERS — long, imperious ── -->
+  <!-- Left -->
+  <line x1="144" y1="210" x2="72" y2="200" stroke="#e0ddd8" stroke-width="1" opacity="0.6"/>
+  <line x1="144" y1="216" x2="70" y2="216" stroke="#e0ddd8" stroke-width="1" opacity="0.65"/>
+  <line x1="144" y1="222" x2="74" y2="230" stroke="#e0ddd8" stroke-width="1" opacity="0.55"/>
+  <!-- Right -->
+  <line x1="256" y1="210" x2="328" y2="200" stroke="#e0ddd8" stroke-width="1" opacity="0.6"/>
+  <line x1="256" y1="216" x2="330" y2="216" stroke="#e0ddd8" stroke-width="1" opacity="0.65"/>
+  <line x1="256" y1="222" x2="326" y2="230" stroke="#e0ddd8" stroke-width="1" opacity="0.55"/>
+
+  <!-- ── INTERNAL MONOLOGUE ── -->
+  <text x="38" y="108" font-family="monospace" font-size="9" fill="#d4a820" opacity="0.18">pathetic</text>
+  <text x="318" y="95" font-family="monospace" font-size="9" fill="#888" opacity="0.15">¬_¬</text>
+  <text x="32" y="280" font-family="monospace" font-size="8" fill="#888" opacity="0.14">my window</text>
+  <text x="310" y="290" font-family="monospace" font-size="8" fill="#d4a820" opacity="0.15">...</text>
+  <text x="150" y="58" font-family="monospace" font-size="8" fill="#888" opacity="0.12">feed me</text>
+</svg>

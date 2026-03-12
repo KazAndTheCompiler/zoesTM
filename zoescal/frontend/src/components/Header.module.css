@@ -1,0 +1,98 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  padding-top: max(11px, env(safe-area-inset-top));
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+  letter-spacing: -0.02em;
+  flex: 1;
+}
+
+[data-skin="warm-analog"] .title     { font-style: italic; font-size: 1.4rem; }
+[data-skin="midnight-neon"] .title   { text-shadow: 0 0 18px currentColor; letter-spacing: 0.05em; }
+[data-skin="retro"] .title           { text-shadow: 0 0 12px currentColor; letter-spacing: 0.08em; }
+
+.offlineBadge {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  padding: 2px 7px;
+  border-radius: var(--radius-chip);
+  background: var(--color-warn);
+  color: var(--text-inverted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+.nav {
+  display: flex;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.modeBtn {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 11px 11px;
+  min-height: 44px;
+  border-radius: var(--radius-chip);
+  border: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-muted);
+  transition: all var(--motion-fast) var(--ease-std);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.modeBtn:hover,
+.modeBtn.active {
+  background: var(--accent-primary);
+  color: var(--text-inverted);
+  border-color: var(--accent-primary);
+}
+
+.todayBtn {
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 11px 9px;
+  min-height: 44px;
+  border-radius: var(--radius-chip);
+  border: 1px solid var(--accent-primary);
+  background: transparent;
+  color: var(--accent-primary);
+  transition: all var(--motion-fast) var(--ease-std);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.todayBtn:hover {
+  background: var(--accent-primary);
+  color: var(--text-inverted);
+}
+
+.skinBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border-subtle);
+  flex-shrink: 0;
+  transition: transform var(--motion-fast) var(--ease-em);
+}
+.skinBtn:hover { transform: scale(1.15) rotate(10deg); }

@@ -1,0 +1,49 @@
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  background: var(--bg-panel-elev);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+  animation: slideDown 240ms var(--ease-em) both;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
+.text {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+.installBtn {
+  background: var(--accent-primary);
+  color: var(--text-inverted);
+  border: none;
+  border-radius: var(--radius-chip);
+  padding: 11px 14px;
+  min-height: 44px;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.dismiss {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  padding: 10px 4px;
+  min-width: 44px;
+  min-height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

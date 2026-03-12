@@ -12,9 +12,11 @@ __pycache__/
 node_modules/
 apps/frontend/node_modules/
 apps/desktop/node_modules/
+zoescal/frontend/node_modules/
 
 # Runtime data
 apps/backend/data/
+zoescal/backend/data/
 *.db
 *.sqlite
 *.sqlite3
@@ -30,3 +32,4 @@ coverage/
 dist/
 build/
 apps/frontend/dist/
+zoescal/frontend/dist/

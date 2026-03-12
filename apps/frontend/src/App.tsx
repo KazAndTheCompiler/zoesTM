@@ -6,7 +6,6 @@ import './styles.css';
 type RouteKey =
   | 'overview'
   | 'tasks'
-  | 'calendar'
   | 'focus'
   | 'alarm-player'
   | 'habits'
@@ -17,7 +16,6 @@ type RouteKey =
 const ROUTES: { key: RouteKey; label: string }[] = [
   { key: 'overview', label: 'Overview Grid' },
   { key: 'tasks', label: 'Tasks' },
-  { key: 'calendar', label: 'Calendar' },
   { key: 'focus', label: 'Focus / Pomodoro' },
   { key: 'alarm-player', label: 'Alarm / Player' },
   { key: 'habits', label: 'Habits' },
@@ -31,9 +29,16 @@ const DEFAULT_ROUTE: RouteKey = 'overview';
 // Module-level dedup set — survives React strict mode double-invoke
 const _firedNotifIds = new Set<string>();
 
-function parseHash(): RouteKey {
-  const raw = window.location.hash.replace('#/', '') as RouteKey;
-  return ROUTES.some((r) => r.key === raw) ? raw : DEFAULT_ROUTE;
+function hashMeta() {
+  const raw = window.location.hash.replace(/^#\//, '');
+  const [routePart, query = ''] = raw.split('?');
+  const route = ROUTES.some((r) => r.key === routePart) ? (routePart as RouteKey) : DEFAULT_ROUTE;
+  const params = new URLSearchParams(query);
+  return {
+    route,
+    sourceId: params.get('source_id') || '',
+    title: params.get('title') || '',
+  };
 }
 
 function BoxCard({
@@ -48,7 +53,9 @@ function BoxCard({
 }
 
 export default function App() {
-  const [route, setRoute] = useState<RouteKey>(parseHash());
+  const [route, setRoute] = useState<RouteKey>(hashMeta().route);
+  const [linkedSourceId, setLinkedSourceId] = useState<string>(hashMeta().sourceId);
+  const [linkedTitle, setLinkedTitle] = useState<string>(hashMeta().title);
   const [tasks, setTasks] = useState<any[]>([]);
   const [newTask, setNewTask] = useState({ title: '', due_at: '', priority: 2 });
   const [taskCreateMsg, setTaskCreateMsg] = useState<string>('');
@@ -62,10 +69,6 @@ export default function App() {
   const [quickCommit, setQuickCommit] = useState(false);
   const [quickResult, setQuickResult] = useState<string | null>(null);
   const [quickError, setQuickError] = useState<string | null>(null);
-  const [calendarMode, setCalendarMode] = useState<'day' | 'week' | 'month'>('day');
-  const [calendarSkin, setCalendarSkin] = useState<'vista' | 'aurora' | 'retro'>('vista');
-  const [calendarData, setCalendarData] = useState<any>({ entries: [] });
-  const [calendarDraft, setCalendarDraft] = useState({ title: '', due_at: '' });
   const [reviewState, setReviewState] = useState<any>(null);
   const [currentCard, setCurrentCard] = useState<any>(null);
   const [showBack, setShowBack] = useState(false);
@@ -237,7 +240,12 @@ export default function App() {
   }, [currentCard, getReviewSession]);
 
   useEffect(() => {
-    const onHash = () => setRoute(parseHash());
+    const onHash = () => {
+      const meta = hashMeta();
+      setRoute(meta.route);
+      setLinkedSourceId(meta.sourceId);
+      setLinkedTitle(meta.title);
+    };
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
@@ -250,10 +258,6 @@ export default function App() {
     if (route === 'tasks' || route === 'overview') {
       setLoad('tasks', true);
       refreshTasks().then(() => clearPanelError('tasks')).catch(apiErr('tasks', 'Tasks')).finally(() => setLoad('tasks', false));
-    }
-    if (route === 'calendar' || route === 'overview') {
-      setLoad('calendar', true);
-      jget(`/calendar/view?mode=${calendarMode}`).then((data) => { setCalendarData(data); clearPanelError('calendar'); }).catch(apiErr('calendar', 'Calendar')).finally(() => setLoad('calendar', false));
     }
     if (route === 'review-anki' || route === 'overview') {
       setLoad('review', true);
@@ -302,7 +306,7 @@ export default function App() {
       setLoad('habits', true);
       refreshHabits().then(() => clearPanelError('habits')).catch(apiErr('habits', 'Habits')).finally(() => setLoad('habits', false));
     }
-  }, [route, calendarMode, refreshTasks, getReviewSession, refreshAlarms, refreshHabits]);
+  }, [route, refreshTasks, getReviewSession, refreshAlarms, refreshHabits]);
 
   // Keyboard shortcuts for review (1-4)
   useEffect(() => {
@@ -335,6 +339,10 @@ export default function App() {
 
   function navigate(target: RouteKey) {
     window.location.hash = `/${target}`;
+  }
+
+  function openZoesCal() {
+    window.open('http://localhost:5174', '_blank', 'noopener,noreferrer');
   }
 
   async function runQuick() {
@@ -434,28 +442,6 @@ export default function App() {
     } catch (err: any) { apiErr('alarm-player', 'Create alarm')(err); }
   }
 
-  async function addCalendarTask() {
-    if (!calendarDraft.title.trim() || !calendarDraft.due_at) return;
-    setLoad('calendar-add', true);
-    try {
-      await jpost('/tasks/', {
-        title: calendarDraft.title.trim(),
-        due_at: calendarDraft.due_at,
-        priority: 2,
-      });
-      setCalendarDraft({ title: '', due_at: '' });
-      await Promise.all([
-        refreshTasks(),
-        jget(`/calendar/view?mode=${calendarMode}`).then((data) => setCalendarData(data)),
-      ]);
-      clearPanelError('calendar');
-    } catch (err: any) {
-      apiErr('calendar', 'Schedule task')(err);
-    } finally {
-      setLoad('calendar-add', false);
-    }
-  }
-
   async function startPomodoro() {
     try {
       await jpost('/focus/start?minutes=25');
@@ -545,7 +531,7 @@ export default function App() {
             {taskCreateErr && <p className="error-inline">{taskCreateErr}</p>}
             <ul className="task-list">
               {orderedTasks.map((t) => (
-                <li key={t.id} className={`task-item ${t.done ? 'is-done' : ''}`}>
+                <li key={t.id} className={`task-item ${t.done ? 'is-done' : ''} ${linkedSourceId === t.id ? 'is-highlighted' : ''}`}>
                   {taskEditId === t.id ? (
                     <>
                       <span className={`priority p${taskEdit.priority}`}>P{taskEdit.priority}</span>
@@ -582,204 +568,16 @@ export default function App() {
     );
   }
 
-  function CalendarBox({ compact = false }: { compact?: boolean }) {
-    const SOURCE_COLORS: Record<string, string> = {
-      task:  '#3b82f6',
-      habit: '#10b981',
-      alarm: '#f59e0b',
-    };
-
-    // Parse and bucket entries
-    const entries: any[] = (calendarData?.entries || []).map((e: any) => {
-      if (!e.at) return null;
-      const d = new Date(e.at);
-      if (isNaN(d.getTime())) return null;
-      return { ...e, _d: d };
-    }).filter(Boolean);
-
-    const now = new Date();
-
-    // ── Week grid (7 day columns × 24 hour rows) ──────────────────────────────
-    function WeekGrid() {
-      // Build the 7 days starting from today
-      const days = Array.from({ length: 7 }, (_, i) => {
-        const d = new Date(now);
-        d.setDate(d.getDate() + i);
-        d.setHours(0, 0, 0, 0);
-        return d;
-      });
-      const HOURS = Array.from({ length: 24 }, (_, i) => i);
-      const COL_W = 110;
-      const ROW_H = 48;
-      const LABEL_W = 44;
-
-      // Map entries to grid slots
-      const slots: Record<string, any[]> = {};
-      entries.forEach((e) => {
-        const key = `${e._d.toISOString().slice(0, 10)}_${e._d.getHours()}`;
-        if (!slots[key]) slots[key] = [];
-        slots[key].push(e);
-      });
-
-      return (
-        <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 520 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: `${LABEL_W}px ${days.map(() => `${COL_W}px`).join(' ')}`, minWidth: LABEL_W + days.length * COL_W }}>
-            {/* Header row */}
-            <div style={{ position: 'sticky', top: 0, zIndex: 2, background: 'var(--bg)', borderBottom: '1px solid var(--border)', padding: '4px 0' }} />
-            {days.map((d, i) => {
-              const isToday = d.toDateString() === now.toDateString();
-              return (
-                <div key={i} style={{ position: 'sticky', top: 0, zIndex: 2, background: isToday ? 'var(--accent-dim, #1e3a5f)' : 'var(--bg)', borderBottom: '1px solid var(--border)', borderLeft: '1px solid var(--border)', padding: '4px 6px', textAlign: 'center', fontSize: '0.78em', fontWeight: isToday ? 700 : 400 }}>
-                  {d.toLocaleDateString(undefined, { weekday: 'short' })}<br />
-                  <span style={{ fontSize: '1.1em' }}>{d.getDate()}</span>
-                </div>
-              );
-            })}
-            {/* Hour rows */}
-            {HOURS.map((h) => (
-              <>
-                <div key={`lbl-${h}`} style={{ borderBottom: '1px solid var(--border)', padding: '2px 6px', fontSize: '0.72em', color: 'var(--muted)', textAlign: 'right', lineHeight: `${ROW_H}px`, height: ROW_H }}>
-                  {h === 0 ? '12am' : h < 12 ? `${h}am` : h === 12 ? '12pm' : `${h - 12}pm`}
-                </div>
-                {days.map((d, di) => {
-                  const key = `${d.toISOString().slice(0, 10)}_${h}`;
-                  const cell = slots[key] || [];
-                  const isToday = d.toDateString() === now.toDateString();
-                  const isNowHour = isToday && now.getHours() === h;
-                  return (
-                    <div key={`cell-${h}-${di}`} style={{ borderBottom: '1px solid var(--border)', borderLeft: '1px solid var(--border)', height: ROW_H, padding: 2, background: isNowHour ? 'rgba(59,130,246,0.08)' : isToday ? 'rgba(255,255,255,0.02)' : 'transparent', position: 'relative', overflow: 'hidden' }}>
-                      {cell.map((e, idx) => (
-                        <div key={idx} title={e.title} style={{ background: SOURCE_COLORS[e.source] || '#6b7280', color: '#fff', borderRadius: 3, padding: '1px 4px', fontSize: '0.7em', marginBottom: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {e._d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })} {e.title}
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })}
-              </>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    // ── Day view (single day, hour list) ──────────────────────────────────────
-    function DayView() {
-      const todayStr = now.toISOString().slice(0, 10);
-      const todayEntries = entries.filter((e) => e._d.toISOString().slice(0, 10) === todayStr)
-        .sort((a, b) => a._d.getTime() - b._d.getTime());
-      return (
-        <div className="calendar-grouped">
-          <div className="calendar-day active-day">
-            <h5 className="calendar-day-header">{now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</h5>
-            {todayEntries.length === 0
-              ? <p className="empty">Nothing scheduled today</p>
-              : <ul className="task-list" style={{ margin: 0 }}>
-                  {todayEntries.map((e, i) => (
-                    <li key={i} className="task-item" style={{ borderLeft: `3px solid ${SOURCE_COLORS[e.source] || '#6b7280'}`, paddingLeft: 8 }}>
-                      <span className="task-due" style={{ minWidth: 50 }}>{e._d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}</span>
-                      <span className="task-title">{e.title}</span>
-                      <span style={{ fontSize: '0.75em', color: 'var(--muted)', marginLeft: 'auto' }}>{e.source}</span>
-                    </li>
-                  ))}
-                </ul>
-            }
-          </div>
-        </div>
-      );
-    }
-
-    // ── Month view (date grid) ────────────────────────────────────────────────
-    function MonthView() {
-      const year = now.getFullYear();
-      const month = now.getMonth();
-      const firstDay = new Date(year, month, 1).getDay();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const cells = Array.from({ length: firstDay }, () => null).concat(
-        Array.from({ length: daysInMonth }, (_, i) => i + 1)
-      );
-
-      const dotsByDate: Record<string, string[]> = {};
-      entries.forEach((e) => {
-        const key = e._d.toISOString().slice(0, 10);
-        if (!dotsByDate[key]) dotsByDate[key] = [];
-        dotsByDate[key].push(SOURCE_COLORS[e.source] || '#6b7280');
-      });
-
-      return (
-        <div>
-          <h5 style={{ margin: '8px 0 4px', textAlign: 'center' }}>{now.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</h5>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2, textAlign: 'center' }}>
-            {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => <div key={d} style={{ fontSize: '0.72em', color: 'var(--muted)', padding: '2px 0' }}>{d}</div>)}
-            {cells.map((day, i) => {
-              if (!day) return <div key={`empty-${i}`} />;
-              const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-              const isToday = day === now.getDate();
-              const dots = dotsByDate[dateStr] || [];
-              return (
-                <div key={dateStr} style={{ padding: '4px 2px', borderRadius: 4, background: isToday ? 'var(--accent, #1d4ed8)' : 'transparent', color: isToday ? '#fff' : 'inherit', fontSize: '0.82em', cursor: dots.length ? 'pointer' : 'default' }} title={dots.length ? `${dots.length} event(s)` : undefined}>
-                  {day}
-                  {dots.length > 0 && (
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: 2, marginTop: 2 }}>
-                      {[...new Set(dots)].slice(0, 3).map((c, ci) => (
-                        <div key={ci} style={{ width: 5, height: 5, borderRadius: '50%', background: c }} />
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      );
-    }
-
+  function ZoesCalBox({ compact = false }: { compact?: boolean }) {
     return (
-      <BoxCard title="Calendar" compact={compact} testId="box-calendar">
-        {loading.calendar && <p className="loading">Loading…</p>}
-        {panelErrors.calendar && <p className="error-inline">{panelErrors.calendar}</p>}
-        {!compact && (
-          <>
-            <div className={`row-group calendar-controls calendar-controls-${calendarSkin}`} style={{ marginBottom: 8 }}>
-              {(['day', 'week', 'month'] as const).map((m) => (
-                <button key={m} className={`calendar-mode-btn ${calendarMode === m ? 'active' : ''}`} onClick={() => setCalendarMode(m)}>{m}</button>
-              ))}
-              <select className="calendar-skin-select" value={calendarSkin} onChange={(e) => setCalendarSkin(e.target.value as 'vista' | 'aurora' | 'retro')}>
-                <option value="vista">Vista skin</option>
-                <option value="aurora">Aurora skin</option>
-                <option value="retro">Retro skin</option>
-              </select>
-              <span style={{ marginLeft: 'auto', fontSize: '0.78em', color: 'var(--muted)' }}>
-                <span style={{ color: SOURCE_COLORS.task }}>■</span> task &nbsp;
-                <span style={{ color: SOURCE_COLORS.habit }}>■</span> habit &nbsp;
-                <span style={{ color: SOURCE_COLORS.alarm }}>■</span> alarm
-              </span>
-            </div>
-            <div className="row-group" style={{ marginBottom: 8 }}>
-              <input
-                value={calendarDraft.title}
-                onChange={(e) => setCalendarDraft((prev) => ({ ...prev, title: e.target.value }))}
-                placeholder="Schedule task title"
-              />
-              <input
-                type="datetime-local"
-                value={calendarDraft.due_at}
-                onChange={(e) => setCalendarDraft((prev) => ({ ...prev, due_at: e.target.value }))}
-              />
-              <button onClick={addCalendarTask} disabled={!calendarDraft.title.trim() || !calendarDraft.due_at || !!loading['calendar-add']}>
-                {loading['calendar-add'] ? 'Scheduling…' : '+ Schedule'}
-              </button>
-            </div>
-          </>
-        )}
-        {!compact && (
-          <div className={`calendar-skin-${calendarSkin}`}>
-            {calendarMode === 'day' && <DayView />}
-            {calendarMode === 'week' && <WeekGrid />}
-            {calendarMode === 'month' && <MonthView />}
+      <BoxCard title="ZoesCal" compact={compact} testId="box-zoescal">
+        <div className="row-group" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <p style={{ margin: '0 0 6px 0' }}>Calendar now lives in ZoesCal as a separate app.</p>
+            {!compact && <p className="task-due" style={{ margin: 0 }}>Open the dedicated day, week, and month views on port 5174.</p>}
           </div>
-        )}
-        {compact && <p>{entries.length} entries • {calendarMode} view</p>}
+          <button onClick={openZoesCal}>Open ZoesCal</button>
+        </div>
       </BoxCard>
     );
   }
@@ -849,9 +647,9 @@ export default function App() {
               ) : alarms.length === 0 ? (
                 <p className="muted" style={{ fontSize: '0.9em' }}>No alarms set</p>
               ) : (
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.9em' }}>
-                  {alarms.map(a => (
-                    <li key={a.id} style={{ padding: '4px 0', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '0.9em' }}>
+                    {alarms.map(a => (
+                    <li key={a.id} className={linkedSourceId === a.id ? 'is-highlighted' : ''} style={{ padding: '4px 0', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', gap: 8 }}>
                       <strong>{a.alarm_time}</strong>
                       {a.title && ` – ${a.title}`}
                       {a.tts_text && <span style={{ color: '#888', fontSize: '0.85em' }}> 🔊 {a.tts_text}</span>}
@@ -904,7 +702,7 @@ export default function App() {
             <div className="row-group" style={{ marginBottom: 8 }}>
               {uniqueHabitList.map((name) => (
                 <span key={name} style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}>
-                  <button onClick={() => jpost(`/habits/checkin?name=${name}&done=true`).then(refreshHabits).catch(apiErr('habits', 'Checkin'))}>
+                  <button className={linkedTitle === name ? 'is-highlighted' : ''} onClick={() => jpost(`/habits/checkin?name=${name}&done=true`).then(refreshHabits).catch(apiErr('habits', 'Checkin'))}>
                     ✓ {name}
                   </button>
                   <button
@@ -943,7 +741,7 @@ export default function App() {
                 </thead>
                 <tbody>
                   {habitNames.map((h: string) => (
-                    <tr key={h}>
+                    <tr key={h} className={linkedTitle === h ? 'is-highlighted' : ''}>
                       <td>{h}</td>
                       {days.map((d: any) => {
                         const done = d.checkins?.[h];
@@ -1111,7 +909,10 @@ export default function App() {
         </div>
       )}
       <aside className="sidebar" role="navigation" aria-label="Main navigation">
-        <h3>Zoe'sTM</h3>
+        <div className="app-brand">
+          <img className="app-logo" src="/zoe-logo.svg" alt="Zoe'sTM logo" />
+          <h3>Zoe'sTM</h3>
+        </div>
         {ROUTES.map((r) => (
           <div key={r.key}>
             <button className={route === r.key ? 'active' : ''} onClick={() => navigate(r.key)}>{r.label}</button>
@@ -1123,6 +924,7 @@ export default function App() {
           <span className="sr-only">Global Command Bar (BPC)</span>
           ⌘ <input value={cmd} onChange={(e) => setCmd(e.target.value)} placeholder="add task …" aria-label="Command input" onKeyDown={(e) => e.key === 'Enter' && runCmd()} />
           <button onClick={runCmd}>Run</button>
+          <button onClick={openZoesCal}>Launch ZoesCal</button>
         </div>
         <div className="status-strip" aria-live="off">
           Route: /{route} • Focus: {focus?.status || 'idle'} • API: {apiMeta?.info?.title || 'offline'}
@@ -1133,7 +935,7 @@ export default function App() {
             <h4>Overview Grid</h4>
             <div className="overview-grid" data-testid="overview-grid">
               {TasksBox({ compact: true })}
-              {CalendarBox({ compact: true })}
+              {ZoesCalBox({ compact: true })}
               {FocusBox({ compact: true })}
               {AlarmPlayerBox({ compact: true })}
               {HabitsBox({ compact: true })}
@@ -1144,7 +946,6 @@ export default function App() {
           </section>
         )}
         {route === 'tasks' && TasksBox({})}
-        {route === 'calendar' && CalendarBox({})}
         {route === 'focus' && FocusBox({})}
         {route === 'alarm-player' && AlarmPlayerBox({})}
         {route === 'habits' && HabitsBox({})}

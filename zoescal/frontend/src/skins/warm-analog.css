@@ -1,0 +1,56 @@
+/* ADR 0004: Warm Analog skin — earthy, soft, physical planner feel */
+[data-skin="warm-analog"] {
+  --bg-app:           #f5f0e8;
+  --bg-panel:         #ede6d6;
+  --bg-panel-elev:    #e4dbc8;
+  --bg-hover:         #d9ceb8;
+  --bg-selected:      #c4a882;
+  --text-primary:     #2c1f0e;
+  --text-secondary:   #5c4a32;
+  --text-muted:       #9c8468;
+  --text-inverted:    #f5f0e8;
+  --border-subtle:    #c8b89a;
+  --border-strong:    #8b6f47;
+  --accent-primary:   #8b6f47;
+  --accent-secondary: #c4956a;
+  --color-success:    #5a7a4a;
+  --color-warn:       #b8860b;
+  --color-danger:     #8b3a3a;
+  --color-info:       #4a6a8a;
+  --timeline-now:     #8b6f47;
+  --cal-grid-line:    #d4c4a8;
+  --day-today-ring:   #8b6f47;
+  --event-default:    #8b6f47;
+  --task-default:     #5a7a4a;
+  --reminder-default: #b8860b;
+  --shadow-soft:      0 2px 8px rgba(44,31,14,0.12);
+  --shadow-elev:      0 4px 20px rgba(44,31,14,0.18);
+  --shadow-float:     0 8px 40px rgba(44,31,14,0.22);
+  --radius-sm:        4px;
+  --radius-md:        8px;
+  --radius-lg:        14px;
+  --radius-panel:     16px;
+  --radius-chip:      999px;
+  --motion-fast:      120ms;
+  --motion-normal:    240ms;
+  --motion-slow:      400ms;
+  --ease-std:         cubic-bezier(0.4,0,0.2,1);
+  --ease-em:          cubic-bezier(0.34,1.56,0.64,1);
+  --font-display:     'Lora', Georgia, serif;
+  --font-body:        'Lora', Georgia, serif;
+  --font-mono:        'DM Mono', monospace;
+  --font-ui:          'Outfit', sans-serif;
+  --theme-color:      #8b6f47;
+  --glass-blur:       none;
+}
+
+/* Paper grain texture overlay */
+[data-skin="warm-analog"] .app-shell::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.5;
+}

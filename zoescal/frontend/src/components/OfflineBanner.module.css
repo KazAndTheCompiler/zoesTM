@@ -1,0 +1,43 @@
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--color-warn);
+  color: var(--text-inverted);
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  animation: slideDown 240ms var(--ease-std) both;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
+.icon {
+  font-size: 0.9rem;
+}
+
+.text {
+  flex: 1;
+}
+
+.dismiss {
+  background: none;
+  border: none;
+  color: var(--text-inverted);
+  font-size: 1.1rem;
+  padding: 4px;
+  cursor: pointer;
+  opacity: 0.8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+}
+.dismiss:hover {
+  opacity: 1;
+}

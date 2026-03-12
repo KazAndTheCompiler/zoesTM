@@ -1,0 +1,39 @@
+@media print {
+  .wrap {
+    overflow: visible !important;
+    height: auto !important;
+    padding-bottom: 20px !important;
+  }
+
+  .navRow,
+  .pullIndicator,
+  .popover,
+  .empty {
+    display: none !important;
+  }
+
+  .hourBlock {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    border-bottom: 1px solid #ccc !important;
+  }
+
+  .chip {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    border: 1px solid #999 !important;
+  }
+
+  .nowLine {
+    display: none !important;
+  }
+
+  .chipBadge,
+  .syncPending,
+  .syncConflict,
+  .syncError,
+  .recurring {
+    display: none !important;
+  }
+}
