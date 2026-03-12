@@ -57,12 +57,12 @@ def list_events(start: str | None = None, end: str | None = None) -> list[dict]:
     query = "SELECT * FROM events WHERE 1=1"
     params = []
     if start:
-        query += " AND start_at >= ?"
+        query += " AND datetime(start_at) >= datetime(?)"
         params.append(start)
     if end:
-        query += " AND start_at <= ?"
+        query += " AND datetime(start_at) <= datetime(?)"
         params.append(end)
-    query += " ORDER BY start_at ASC"
+    query += " ORDER BY datetime(start_at) ASC"
     with conn() as c:
         rows = c.execute(query, params).fetchall()
     return [_row_to_event(r) for r in rows]

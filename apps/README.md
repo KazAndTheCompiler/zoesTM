@@ -27,7 +27,7 @@ I have AuDHD. I came out of 3 years of illness and needed tools that actually wo
 - `apps/` = ZoesTM
 - `zoescal/` = ZoesCal
 - `release/v1.0.0` = legacy all-in-one skeleton
-- `main` = split `v1.0.1`
+- `main` = split `v1.0.2`
 
 ## Features
 

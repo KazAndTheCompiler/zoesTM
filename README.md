@@ -22,11 +22,12 @@ I have AuDHD. I came out of 3 years of illness and needed tools that actually wo
 
 ---
 
-## v1.0.1 Split Release
+## v1.0.2 Split Release
 
-- `main` now tracks the split architecture release (`v1.0.1`)
+- `main` now tracks the split architecture release (`v1.0.2`)
 - `release/v1.0.0` preserves the older all-in-one skeleton release
 - ZoesTM and ZoesCal now live in the same repo as separate products with a shared contract
+- `v1.0.2` adds post-split stabilization fixes for startup migrations, ZoesTM -> ZoesCal sync, CORS, and safer calendar date filtering
 
 ## Repo layout
 
