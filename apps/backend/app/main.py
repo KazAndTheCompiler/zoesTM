@@ -22,6 +22,7 @@ from .routers import (
     commands,
     player,
     goggins,
+    journal,
 )
 from .routers import integrations, meta, ops, notifications, search, health
 from .routers import anki_apkg
@@ -187,6 +188,7 @@ app.include_router(
 app.include_router(search.router, prefix="/search", tags=["search"])
 app.include_router(player.router, prefix="/player", tags=["player"])
 app.include_router(goggins.router, prefix="/goggins", tags=["goggins"])
+app.include_router(journal.router, prefix="/journal", tags=["journal"])
 app.include_router(health.router, tags=["health"])
 app.mount(
     "/static",

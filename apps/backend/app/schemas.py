@@ -75,3 +75,14 @@ class OpsImportIn(BaseModel):
 class CommandIn(BaseModel):
     text: str = Field(min_length=1, max_length=280)
     confirm: bool = False
+
+
+class JournalIn(BaseModel):
+    markdown_body: str = Field(min_length=1)
+    emoji: Optional[str] = None
+    date: Optional[str] = None
+
+
+class JournalPatch(BaseModel):
+    markdown_body: Optional[str] = Field(default=None, min_length=1)
+    emoji: Optional[str] = None

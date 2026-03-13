@@ -1,14 +1,14 @@
 from fastapi import APIRouter
-from ..repositories import tasks_repo, commands_repo, habits_repo
+from ..repositories import tasks_repo, commands_repo, habits_repo, journal_repo
 
 router = APIRouter()
 
 
 @router.get('')
-def unified_search(q: str = '', types: str = 'tasks,commands,habits', limit: int = 20):
+def unified_search(q: str = '', types: str = 'tasks,commands,habits,journal', limit: int = 20):
     limit = max(1, min(limit, 100))
     if not q.strip():
-        return {'items': [], 'total': 0}
+        return {'items': [], 'results': [], 'total': 0}
     enabled = {t.strip() for t in types.split(',') if t.strip()}
     items = []
     ql = q.lower()
@@ -25,10 +25,18 @@ def unified_search(q: str = '', types: str = 'tasks,commands,habits', limit: int
             n = h.get('habit_name') or ''
             if ql in n.lower():
                 items.append({'type': 'habit', 'id': h.get('id', ''), 'title': n, 'deeplink': '/habits/weekly'})
+    if 'journal' in enabled:
+        for j in journal_repo.list_entries(limit=50):
+            body = (j.get('markdown_body') or '').lower()
+            emoji = (j.get('emoji') or '').lower()
+            if ql in body or (emoji and ql in emoji):
+                title = j.get('date') or 'journal entry'
+                items.append({'type': 'journal', 'id': j['id'], 'title': title, 'deeplink': f"/journal/{j['id']}"})
     items = sorted(items, key=lambda x: (0 if x['title'].lower().startswith(ql) else 1, x['title']))
-    return {'items': items[:limit], 'total': len(items)}
+    sliced = items[:limit]
+    return {'items': sliced, 'results': sliced, 'total': len(items)}
 
 
 # Endpoints map:
 # Owner: search-domain
-# GET /search?q=...&types=tasks,commands,habits&limit=20
+# GET /search?q=...&types=tasks,commands,habits,journal&limit=20

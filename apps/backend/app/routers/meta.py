@@ -5,6 +5,11 @@ router = APIRouter()
 APP_VERSION = '1.0.0-rc1'
 
 
+@router.get('')
+def meta_summary():
+    return {'version': APP_VERSION, 'app_version': APP_VERSION}
+
+
 @router.get('/openapi')
 def openapi_spec(request: Request):
     return get_openapi_payload(request.app)
