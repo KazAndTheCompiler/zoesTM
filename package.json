@@ -7,10 +7,12 @@
     "dev:backend": ". .venv/bin/activate && uvicorn apps.backend.app.main:app --reload --port 8000",
     "dev:frontend": "npm --prefix apps/frontend run dev",
     "dev:desktop": "npm --prefix apps/desktop run start",
-    "dev": "concurrently --kill-others-on-fail -n backend,frontend,desktop -c cyan,green,magenta \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:desktop\"", 
+    "dev": "concurrently --kill-others-on-fail -n backend,frontend,desktop -c cyan,green,magenta \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:desktop\"",
     "build": "npm --prefix apps/frontend run build",
     "test": "./scripts/quality_pass.sh && ./scripts/qa_runner.sh",
-    "lint": "./scripts/qa_lint.sh"
+    "lint": "./scripts/qa_lint.sh",
+    "dev:journal": "npm --prefix zoesjournal/frontend run dev",
+    "build:journal": "npm --prefix zoesjournal/frontend run build"
   },
   "devDependencies": {
     "concurrently": "^9.0.1"

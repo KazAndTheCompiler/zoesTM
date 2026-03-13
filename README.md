@@ -6,6 +6,8 @@
 
 **ZoesCal** is the separate calendar side: day, week, and month views, skins, external calendar sync, and imported mirrors from ZoesTM.
 
+**ZoesJournal** is the separate mobile-first journal companion: day entry editing, history, export, and markdown-first journaling over the existing ZoesTM journal API.
+
 It's free. It will stay free.
 
 Named after a cat who remains unimpressed.
@@ -39,6 +41,8 @@ I have AuDHD. I came out of 3 years of illness and needed tools that actually wo
   - `zoescal/backend` - ZoesCal FastAPI backend
   - `zoescal/frontend` - ZoesCal React/Vite frontend
   - `zoescal/shared` - ADRs and contracts shared across the split
+- `zoesjournal/` - ZoesJournal companion app
+  - `zoesjournal/frontend` - ZoesJournal React/Vite frontend
 
 ## Features
 
@@ -47,6 +51,7 @@ I have AuDHD. I came out of 3 years of illness and needed tools that actually wo
 - **Pomodoro timer** — focus sessions with persistence
 - **Spaced repetition** — Anki-compatible review system (APKG import/export experimental)
 - **Separate calendar app** — ZoesCal owns day/week/month views and skins
+- **Separate journal app** — ZoesJournal owns phone-first journal entry/history/export UX
 - **Alarms + TTS** — audio reminders via text-to-speech
 - **Media player queue** — yt-dlp integration for background audio
 - **Emergency dopamine button** — Goggins. You'll know when you need it.
@@ -101,6 +106,9 @@ python3 -m uvicorn zoescal.backend.app.main:app --reload --port 8001
 
 # ZoesCal frontend
 npm --prefix zoescal/frontend run dev -- --port 5174
+
+# ZoesJournal frontend
+npm --prefix zoesjournal/frontend run dev -- --port 5175
 ```
 
 ### Desktop app (Electron)
