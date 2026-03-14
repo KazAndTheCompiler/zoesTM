@@ -46,9 +46,10 @@ check_file "scripts/bootstrap_dev.sh" "Bootstrap script"
 
 echo ""
 if [ $FAILED -eq 0 ]; then
-  echo "All checks passed. Run: ./scripts/bootstrap_dev.sh"
+  echo "All checks passed. Canonical bootstrap: npm run setup"
+  echo "Direct script equivalent: ./scripts/bootstrap_dev.sh"
   exit 0
 else
-  echo "Some checks failed. Install prerequisites, then run ./scripts/bootstrap_dev.sh."
+  echo "Some checks failed. Install prerequisites, then rerun npm run setup (or ./scripts/bootstrap_dev.sh)."
   exit 1
 fi

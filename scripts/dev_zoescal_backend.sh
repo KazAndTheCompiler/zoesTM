@@ -6,7 +6,7 @@ PY="./.venv/bin/python"
 URL="http://127.0.0.1:8001/health"
 
 if [ ! -x "$PY" ]; then
-  echo "[dev:calendar-backend] missing $PY (run ./scripts/bootstrap_dev.sh first)"
+  echo "[dev:calendar-backend] missing $PY (run npm run setup first)"
   exit 1
 fi
 

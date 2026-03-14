@@ -24,8 +24,8 @@
     "build:all": "npm run build && npm run build:desktop",
     "test": "npm run test:qa",
     "test:qa": "./scripts/quality_pass.sh && ./scripts/qa_runner.sh",
-    "test:backend": "./.venv/bin/python -m unittest discover -s apps/backend/tests -p 'test_*.py' -q",
-    "test:smoke": "./scripts/qa_endpoint_smoke.sh && ./scripts/frontend_backend_smoke.sh && ./scripts/frontend_behavior_smoke.sh && ./scripts/zoescal_backend_smoke.sh",
+    "test:backend": "./scripts/test_backend.sh",
+    "test:smoke": "./scripts/qa_endpoint_smoke.sh && ./scripts/frontend_backend_smoke.sh && ./scripts/frontend_behavior_smoke.sh && ./scripts/zoescal_backend_smoke.sh && ./scripts/standalone_frontends_smoke.sh",
     "lint": "./scripts/qa_lint.sh"
   },
   "devDependencies": {

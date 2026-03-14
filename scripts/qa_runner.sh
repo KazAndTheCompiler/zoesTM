@@ -26,6 +26,7 @@ $PY -m unittest -q apps.backend.tests.test_qa_round3_unittest
 $PY -m unittest -q apps.backend.tests.test_task_filtering_pagination_unittest
 $PY -m unittest -q apps.backend.tests.test_auth_runtime_contract_unittest
 $PY -m unittest -q apps.backend.tests.test_zoesjournal_split_unittest
+$PY -m unittest -q apps.backend.tests.test_zoescal_split_unittest
 $PY -m unittest discover -s tests -p "test_*.py" -q
 
 echo "[qa] smoke"
@@ -33,5 +34,6 @@ echo "[qa] smoke"
 ./scripts/frontend_backend_smoke.sh
 ./scripts/frontend_behavior_smoke.sh
 ./scripts/zoescal_backend_smoke.sh
+./scripts/standalone_frontends_smoke.sh
 
 echo "qa runner: OK"

@@ -11,7 +11,7 @@ This folder contains the ZoesTM side of the split release.
 For the separate calendar app and split ADRs, see `../zoescal/`.
 For the separate journal frontend, see `../zoesjournal/`.
 
-## Supported commands from repo root
+## Supported repo-root commands
 
 ```bash
 npm run setup
@@ -20,6 +20,7 @@ npm run dev:desktop
 npm run build:web
 npm run test:backend
 npm test
+npm run lint
 ```
 
 ## Important split boundary
@@ -33,8 +34,19 @@ Not owned by ZoesTM:
 - `/calendar/view`
 - `/calendar/range`
 - `/calendar/timeline`
+- `/calendar/events`
 
 Those belong to the ZoesCal backend.
+
+## Validation notes
+
+What root validation covers strongly for the ZoesTM side:
+- backend unit and contract regressions
+- root smoke coverage for key ZoesTM APIs
+- command-surface regressions from the repo root
+
+What remains lighter:
+- desktop runtime validation is mostly static sanity checking at root, not full Electron automation
 
 ## Notes
 

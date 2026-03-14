@@ -11,10 +11,10 @@ trap 'rm -f "$TMP_DB"' EXIT
 
 $PY apps/backend/scripts/migrate.py >/dev/null
 
-echo "[1/3] Syntax compile"
-$PY -m py_compile $(find apps/backend/app -name '*.py')
+echo "[1/4] Backend syntax compile"
+$PY -m py_compile $(find apps/backend/app -name '*.py' | sort)
 
-echo "[2/3] Endpoint map presence check"
+echo "[2/4] Endpoint map presence check"
 $PY -m unittest -q apps.backend.tests.test_endpoint_maps_unittest
 
 echo "[3/4] Service tests"
