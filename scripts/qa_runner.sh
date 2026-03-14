@@ -30,10 +30,6 @@ $PY -m unittest -q apps.backend.tests.test_zoescal_split_unittest
 $PY -m unittest discover -s tests -p "test_*.py" -q
 
 echo "[qa] smoke"
-./scripts/qa_endpoint_smoke.sh
-./scripts/frontend_backend_smoke.sh
-./scripts/frontend_behavior_smoke.sh
-./scripts/zoescal_backend_smoke.sh
-./scripts/standalone_frontends_smoke.sh
+./scripts/test_smoke.sh
 
 echo "qa runner: OK"

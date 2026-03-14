@@ -3,6 +3,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 PY="./.venv/bin/python"
+export PYTHONPATH=.
 
 # Isolated test DB so repeated runs are deterministic
 TMP_DB="$(mktemp -u /tmp/zoestm-quality-XXXXXX.db)"
