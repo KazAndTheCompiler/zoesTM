@@ -1,10 +1,11 @@
 # Development Runtime Guide
 
-This repo has three frontend/runtime stories sharing the same product family:
+This repo supports four first-class runtime surfaces in one product family:
 
-- **Zoe'sTM desktop-integrated stack**: main TM UI + ZoesCal backend/frontend + ZoesJournal frontend + optional Electron shell
-- **ZoesCal standalone**: mobile-oriented calendar client + ZoesCal backend
-- **ZoesJournal standalone**: mobile-oriented journal client + ZoesTM backend journal routes
+- **Integrated web stack**: ZoesTM backend + ZoesCal backend + ZoesTM frontend + ZoesCal frontend + ZoesJournal frontend
+- **Desktop shell**: Electron shell running against the integrated stack
+- **Standalone calendar**: ZoesCal frontend + ZoesCal backend
+- **Standalone journal**: ZoesJournal frontend + ZoesTM backend
 
 ## Ports
 
@@ -17,7 +18,7 @@ This repo has three frontend/runtime stories sharing the same product family:
 ## Canonical setup
 
 ```bash
-./scripts/bootstrap_dev.sh
+npm run setup
 ```
 
 Bootstrap installs:
@@ -27,6 +28,7 @@ Bootstrap installs:
 - `zoescal/frontend`
 - `zoesjournal/frontend`
 - backend Python dependencies
+- ZoesTM migrations and seed data
 
 ## Canonical development flows
 
@@ -43,7 +45,7 @@ Starts:
 - ZoesCal frontend
 - ZoesJournal frontend
 
-This is the safest default validation path because Electron failure will not kill the whole stack.
+This is the default supported dev/runtime path.
 
 ### Desktop shell + integrated stack
 
@@ -51,7 +53,7 @@ This is the safest default validation path because Electron failure will not kil
 npm run dev:desktop
 ```
 
-Starts the integrated stack and also launches Electron.
+Starts the integrated stack and launches Electron.
 
 On Linux, `dev:desktop-shell` defaults to Electron `--no-sandbox` for local dev unless:
 
@@ -79,6 +81,25 @@ Starts:
 - ZoesTM backend (`8000`)
 - ZoesJournal frontend (`5175`)
 
+## Backend ownership and API boundaries
+
+### ZoesTM backend owns
+
+- tasks, habits, alarms, focus, review, commands, player, journal
+- journal export aggregation
+- `/calendar/feed` as the mirror feed consumed by ZoesCal
+
+### ZoesCal backend owns
+
+- calendar presentation/runtime endpoints
+- `/calendar/view`
+- `/calendar/range`
+- `/calendar/timeline`
+- `/calendar/events` CRUD
+- imports and sync overlays
+
+That means tests and docs must not call `/calendar/view` on the ZoesTM backend.
+
 ## Auth expectations
 
 ### Local first-party clients
@@ -104,20 +125,33 @@ then protected routes require explicit scopes again, including Journal routes su
 - `read:journal`
 - `write:journal`
 
-Optional scope headers can still be supplied by clients through `X-Token-Scopes`.
-
 ### Dev bypass
 
-`ZOESTM_DEV_AUTH=1` still exists for explicit test/dev bypass, but it is no longer required for normal local first-party Journal use.
+`ZOESTM_DEV_AUTH=1` still exists for explicit test/dev bypass, but it is not required for normal local first-party Journal use.
 
 ## Build commands
 
 ```bash
 npm run build
+npm run build:web
 npm run build:calendar
 npm run build:journal
 npm run build:desktop
+npm run build:all
 ```
+
+`npm run build` is the canonical web build path for the three supported frontend surfaces.
+
+## Test commands
+
+```bash
+npm test
+npm run test:qa
+npm run test:backend
+npm run test:smoke
+```
+
+`npm test` runs the supported repo QA path: backend quality pass, split contract regressions, and smoke coverage for ZoesTM plus ZoesCal.
 
 ## Docker
 

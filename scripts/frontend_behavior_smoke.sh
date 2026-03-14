@@ -4,6 +4,7 @@ cd "$(dirname "$0")/.."
 
 PYTHONPATH=. ./.venv/bin/python - <<'PY'
 import uuid
+from datetime import datetime, timedelta, UTC
 from pathlib import Path
 from fastapi.testclient import TestClient
 from apps.backend.app.main import app
@@ -13,7 +14,6 @@ required = [
     "overview-grid",
     "'overview'",
     "'tasks'",
-    "'calendar'",
     "'focus'",
     "'alarm-player'",
     "'habits'",
@@ -21,7 +21,8 @@ required = [
     "'review-anki'",
     "'commands'",
     "box-tasks",
-    "box-calendar",
+    "box-zoescal",
+    "box-zoesjournal",
     "box-focus",
     "box-alarm-player",
     "box-habits",
@@ -39,8 +40,10 @@ c = TestClient(app)
 openapi = c.get('/meta/openapi').json()
 assert openapi.get('spec', {}).get('info', {}).get('title'), 'openapi title missing'
 
-cal = c.get('/calendar/view?mode=week').json()
-assert cal.get('mode') == 'week'
+start = datetime.now(UTC).isoformat().replace('+00:00', 'Z')
+end = (datetime.now(UTC) + timedelta(days=7)).isoformat().replace('+00:00', 'Z')
+cal = c.get(f'/calendar/feed?from_={start}&to={end}').json()
+assert cal.get('owner') == 'zoestm'
 assert isinstance(cal.get('entries'), list)
 
 alarm = c.post('/alarms/', json={
@@ -51,13 +54,11 @@ alarm = c.post('/alarms/', json={
 }).json()
 assert 'id' in alarm
 
-# Create a review deck and card to get a valid session state (use unique name to avoid collisions across runs)
 deck_name = f"Smoke Test Deck {uuid.uuid4().hex[:8]}"
 deck_resp = c.post('/review/decks', params={'name': deck_name})
 if deck_resp.status_code != 200:
     print(f"Deck creation failed: {deck_resp.status_code} {deck_resp.text}")
     deck = deck_resp.json()
-    # If deck exists (duplicate), try to get its ID by name (fallback) - unlikely due to UUID
     if 'duplicate_deck_name' in deck.get('error', {}).get('code', ''):
         existing = c.get('/review/decks').json()
         for d in existing.get('items', []):
@@ -69,8 +70,7 @@ if deck_resp.status_code != 200:
 else:
     deck = deck_resp.json()
 deck_id = deck['id']
-card = c.post(f'/review/decks/{deck_id}/cards', params={'front': 'Q', 'back': 'A'}).json()
-# Start session to ensure card is due
+c.post(f'/review/decks/{deck_id}/cards', params={'front': 'Q', 'back': 'A'}).json()
 start = c.post('/review/session/start?limit=1').json()
 assert start['count'] >= 1
 

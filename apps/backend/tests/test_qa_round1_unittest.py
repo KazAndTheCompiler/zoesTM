@@ -1,6 +1,7 @@
 import sqlite3
 import tempfile
 import unittest
+from datetime import datetime, timedelta, UTC
 from pathlib import Path
 
 from fastapi.testclient import TestClient
@@ -85,17 +86,22 @@ class TestQuickAddEdges(unittest.TestCase):
 
 
 class TestCalendarBoardsFocusReview(QARound1Base):
-    def test_calendar_view_filters_entries_without_at(self):
-        tasks_repo.create_task({"title": "with due", "due_at": "2026-03-01T10:00:00+00:00", "priority": 2})
+    def test_calendar_feed_filters_entries_without_at(self):
+        in_window = (datetime.now(UTC) + timedelta(hours=6)).isoformat().replace('+00:00', 'Z')
+        tasks_repo.create_task({"title": "with due", "due_at": in_window, "priority": 2})
         tasks_repo.create_task({"title": "without due", "priority": 2})
-        out = calendar.view(mode="week")
+        out = calendar.feed(
+            from_=datetime.now(UTC).isoformat().replace('+00:00', 'Z'),
+            to=(datetime.now(UTC) + timedelta(days=1)).isoformat().replace('+00:00', 'Z'),
+        )
         titles = [e["title"] for e in out["entries"]]
         self.assertIn("with due", titles)
         self.assertNotIn("without due", titles)
 
-    def test_calendar_invalid_mode_falls_back_to_day(self):
-        out = calendar.view(mode="decade")
-        self.assertEqual(out["mode"], "day")
+    def test_calendar_invalid_window_returns_empty_entries(self):
+        out = calendar.feed(from_="invalid", to="2026-03-01T00:00:00Z")
+        self.assertEqual(out["entries"], [])
+        self.assertEqual(out["owner"], "zoestm")
 
     def test_focus_invalid_transitions_are_rejected(self):
         from apps.backend.app.errors import ApiError
@@ -135,18 +141,15 @@ class TestCalendarBoardsFocusReview(QARound1Base):
         self.assertEqual(boards.matrix(priority=3, due_soon=True)["quadrant"], "delegate")
 
     def test_review_scheduler_transitions(self):
-        # Create a deck and a new card to test review rating transitions
         deck = self.client.post('/review/decks?name=Scheduler Test').json()
         deck_id = deck['id']
         card = self.client.post(f'/review/decks/{deck_id}/cards', params={'front': 'Q', 'back': 'A'}).json()
         card_id = card['id']
 
-        # Start session and verify the card is due
         sess_start = self.client.post('/review/session/start?limit=1').json()
         self.assertEqual(sess_start['count'], 1)
         self.assertEqual(sess_start['cards'][0]['id'], card_id)
 
-        # Rate transitions should succeed and keep returning session/card payloads
         for rating in ['again', 'hard', 'good', 'easy']:
             resp = self.client.post(f'/review/answer?rating={rating}&card_id={card_id}')
             self.assertEqual(resp.status_code, 200)

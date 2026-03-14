@@ -40,8 +40,14 @@
 - ZoesTM sync timeout lowered to `5s`
 - ZoesCal event date filtering uses SQLite `datetime()` instead of raw string compare
 
+## Consolidation follow-up completed
+- QA runner now includes split regression coverage for auth runtime, standalone journal surface, and ZoesCal backend smoke
+- legacy ZoesTM calendar tests were rewritten to use the supported `/calendar/feed` bridge instead of pre-split `/calendar/view` and `/calendar/range`
+- root command surface is now explicit: `npm run setup`, `npm run dev`, `npm run build`, `npm test`
+- docs were aligned around four first-class surfaces: integrated web, desktop shell, standalone calendar, standalone journal
+- repo-level root tests now validate the supported command surface and runtime guide instead of unrelated OpenClaw lockdown config
+
 ## Next-session suggestions
 - release notes / screenshots cleanup
 - optionally add UI targeting in ZoesTM for goggins quote history
 - consider moving testing/runtime junk fully into `/sandbox/` while keeping `/liveprojectsonhub/` pristine
-- clean up or modernize legacy ZoesTM calendar tests that still assume pre-split `/calendar/view` and `/calendar/range`

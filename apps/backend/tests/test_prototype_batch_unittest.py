@@ -1,15 +1,26 @@
 import unittest
+from datetime import datetime, timedelta, UTC
 
 from apps.backend.app.routers import calendar, alarms, player
 from apps.backend.app.schemas import AlarmIn
+from apps.backend.app.repositories import tasks_repo
 
 
 class TestPrototypeBatch(unittest.TestCase):
-    def test_calendar_modes(self):
-        for mode in ('day', 'week', 'month'):
-            out = calendar.view(mode=mode)
-            self.assertEqual(out['mode'], mode)
-            self.assertIn('entries', out)
+    def test_calendar_feed_filters_entries_by_window(self):
+        inside = (datetime.now(UTC) + timedelta(hours=2)).isoformat().replace('+00:00', 'Z')
+        outside = (datetime.now(UTC) + timedelta(days=10)).isoformat().replace('+00:00', 'Z')
+        tasks_repo.create_task({"title": "feed-inside", "due_at": inside, "priority": 2})
+        tasks_repo.create_task({"title": "feed-outside", "due_at": outside, "priority": 2})
+
+        window_start = datetime.now(UTC).isoformat().replace('+00:00', 'Z')
+        window_end = (datetime.now(UTC) + timedelta(days=1)).isoformat().replace('+00:00', 'Z')
+        out = calendar.feed(from_=window_start, to=window_end)
+
+        titles = [entry['title'] for entry in out['entries']]
+        self.assertIn('feed-inside', titles)
+        self.assertNotIn('feed-outside', titles)
+        self.assertEqual(out['owner'], 'zoestm')
 
     def test_alarm_vs_reminder_trigger(self):
         alarm = alarms.create_alarm(AlarmIn(at='07:00', kind='alarm', title='wake', tts_text='wake now'))

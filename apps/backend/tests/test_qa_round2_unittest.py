@@ -1,6 +1,7 @@
 import sqlite3
 import tempfile
 import unittest
+from datetime import datetime, timedelta, UTC
 from pathlib import Path
 
 from fastapi.testclient import TestClient
@@ -33,7 +34,7 @@ class QARound2Base(unittest.TestCase):
 
 class TestAlarmPlayerReliability(QARound2Base):
     def test_alarm_missing_returns_404_for_queue_and_trigger(self):
-        q = self.client.post("/alarms/missing-id/queue", json=["yt:a"]) 
+        q = self.client.post("/alarms/missing-id/queue", json=["yt:a"])
         self.assertEqual(q.status_code, 404)
         self.assertEqual(q.json()["error"]["code"], "alarm_not_found")
 
@@ -50,9 +51,8 @@ class TestAlarmPlayerReliability(QARound2Base):
         self.assertEqual(len(items), 20)
 
 
-class TestCalendarContract(QARound2Base):
-    def test_range_filters_entries_by_strict_window(self):
-        # Create tasks with different due dates via API
+class TestCalendarBridgeContract(QARound2Base):
+    def test_feed_filters_entries_by_strict_window(self):
         self.client.post("/tasks/", json={"title": "inside-start", "due_at": "2026-03-02T10:00:00Z", "priority": 2})
         self.client.post("/tasks/", json={"title": "inside-end", "due_at": "2026-03-02T15:00:00Z", "priority": 2})
         self.client.post("/tasks/", json={"title": "outside-before", "due_at": "2026-03-01T23:00:00Z", "priority": 2})
@@ -61,7 +61,7 @@ class TestCalendarContract(QARound2Base):
 
         start = "2026-03-02T00:00:00Z"
         end = "2026-03-02T23:59:59Z"
-        resp = self.client.get(f"/calendar/range?start={start}&end={end}")
+        resp = self.client.get(f"/calendar/feed?from_={start}&to={end}")
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         titles = [e["title"] for e in data["entries"]]
@@ -70,56 +70,57 @@ class TestCalendarContract(QARound2Base):
         self.assertNotIn("outside-before", titles)
         self.assertNotIn("outside-after", titles)
         self.assertNotIn("no-due", titles)
-        self.assertEqual(data["start"], start)
-        self.assertEqual(data["end"], end)
-        self.assertIn("conflicts", data)
+        self.assertEqual(data["from"], start)
+        self.assertEqual(data["to"], end)
+        self.assertEqual(data["owner"], "zoestm")
 
-    def test_range_boundary_inclusion(self):
+    def test_feed_boundary_inclusion(self):
         self.client.post("/tasks/", json={"title": "boundary-start", "due_at": "2026-03-05T00:00:00Z", "priority": 2})
         self.client.post("/tasks/", json={"title": "boundary-end", "due_at": "2026-03-05T23:59:59Z", "priority": 2})
 
         start = "2026-03-05T00:00:00Z"
         end = "2026-03-05T23:59:59Z"
-        resp = self.client.get(f"/calendar/range?start={start}&end={end}")
+        resp = self.client.get(f"/calendar/feed?from_={start}&to={end}")
         self.assertEqual(resp.status_code, 200)
         titles = [e["title"] for e in resp.json()["entries"]]
         self.assertIn("boundary-start", titles)
         self.assertIn("boundary-end", titles)
 
-    def test_range_invalid_params_returns_empty_entries(self):
-        resp = self.client.get("/calendar/range?start=invalid&end=2026-03-05T00:00:00Z")
+    def test_feed_invalid_params_returns_empty_entries(self):
+        resp = self.client.get("/calendar/feed?from_=invalid&to=2026-03-05T00:00:00Z")
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["entries"], [])
-        self.assertEqual(resp.json()["start"], "invalid")
+        self.assertEqual(resp.json()["from"], "invalid")
 
-    def test_view_returns_all_entries_with_at(self):
-        self.client.post("/tasks/", json={"title": "task-with-due", "due_at": "2026-03-10T12:00:00Z", "priority": 2})
-        self.client.post("/tasks/", json={"title": "task-no-due", "priority": 2})
-
-        resp = self.client.get("/calendar/view?mode=week")
+    def test_feed_includes_alarm_mirror_entries(self):
+        now = datetime.now(UTC)
+        alarm_at = (now + timedelta(hours=1)).isoformat().replace('+00:00', 'Z')
+        self.client.post(
+            "/alarms/",
+            params={
+                "at": alarm_at,
+                "kind": "reminder",
+                "title": "alarm-in-feed",
+                "tts_text": "alarm-in-feed",
+            },
+        )
+        start = now.isoformat().replace('+00:00', 'Z')
+        end = (now + timedelta(days=1)).isoformat().replace('+00:00', 'Z')
+        resp = self.client.get(f"/calendar/feed?from_={start}&to={end}")
         self.assertEqual(resp.status_code, 200)
-        data = resp.json()
-        self.assertIn("mode", data)
-        self.assertIn("window", data)
-        self.assertIn("entries", data)
-        titles = [e["title"] for e in data["entries"]]
-        self.assertIn("task-with-due", titles)
-        self.assertNotIn("task-no-due", titles)  # filtered out due to missing at
-
-        # Confirm view does NOT filter by the returned window; old behavior: returns all entries with at
-        # So an entry far outside the window would still appear in view (legacy)
-        # For this test, we trust the mode and window presence
+        titles = [e["title"] for e in resp.json()["entries"]]
+        self.assertIn("🔔 alarm-in-feed", titles)
 
 
 class TestIntegrationFlows(QARound2Base):
-    def test_task_to_calendar_to_reminder_flow(self):
+    def test_task_to_calendar_feed_to_reminder_flow(self):
         task = self.client.post(
             "/tasks/",
             json={"title": "pay rent", "priority": 1, "due_at": "2026-03-02T08:00:00+00:00"},
         )
         self.assertEqual(task.status_code, 200)
 
-        cal = self.client.get("/calendar/view?mode=week")
+        cal = self.client.get("/calendar/feed?from_=2026-03-02T00:00:00Z&to=2026-03-02T23:59:59Z")
         self.assertEqual(cal.status_code, 200)
         titles = [e["title"] for e in cal.json()["entries"]]
         self.assertIn("pay rent", titles)
@@ -136,18 +137,15 @@ class TestIntegrationFlows(QARound2Base):
         self.assertEqual(actions[0]["type"], "tts")
 
     def test_review_rating_to_next_interval_flow(self):
-        # Create a deck and a card for testing; initially card is 'new'
         deck = self.client.post('/review/decks?name=Interval Test').json()
         deck_id = deck['id']
         card = self.client.post(f'/review/decks/{deck_id}/cards', params={'front': 'Q', 'back': 'A'}).json()
         card_id = card['id']
 
-        # Start session and verify card is due
         sess = self.client.post('/review/session/start?limit=1').json()
         self.assertEqual(sess['count'], 1)
         self.assertEqual(sess['cards'][0]['id'], card_id)
 
-        # Ratings should return canonical session/card shape for real cards
         again = self.client.post(f'/review/answer?rating=again&card_id={card_id}')
         self.assertEqual(again.status_code, 200)
         self.assertIn('session', again.json())

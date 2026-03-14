@@ -26,35 +26,35 @@ I have AuDHD. I came out of 3 years of illness and needed tools that actually wo
 
 ## v1.0.2 Split Release
 
-- `main` now tracks the split architecture release (`v1.0.2`)
+- `main` tracks the split architecture release line
 - `release/v1.0.0` preserves the older all-in-one skeleton release
-- ZoesTM and ZoesCal now live in the same repo as separate products with a shared contract
-- `v1.0.2` adds post-split stabilization fixes for startup migrations, ZoesTM -> ZoesCal sync, CORS, and safer calendar date filtering
+- ZoesTM and ZoesCal live in one repo as separate products with an explicit shared contract
+- ZoesJournal is the standalone journal frontend over ZoesTM journal routes
 
 ## Repo layout
 
 - `apps/` - ZoesTM app surfaces
   - `apps/backend` - ZoesTM FastAPI backend
   - `apps/frontend` - ZoesTM React frontend
-  - `apps/desktop` - desktop shell assets
+  - `apps/desktop` - Electron desktop shell
 - `zoescal/` - ZoesCal app
   - `zoescal/backend` - ZoesCal FastAPI backend
   - `zoescal/frontend` - ZoesCal React/Vite frontend
-  - `zoescal/shared` - ADRs and contracts shared across the split
+  - `zoescal/shared` - shared ADRs and contracts for the split
 - `zoesjournal/` - ZoesJournal companion app
   - `zoesjournal/frontend` - ZoesJournal React/Vite frontend
 
 ## Features
 
 - **Task management** — quick add, tagging, filtering, Eisenhower matrix prioritization
-- **Habit tracking** — unlimited (yes, unlimited) habits with streaks
+- **Habit tracking** — unlimited habits with streaks
 - **Pomodoro timer** — focus sessions with persistence
 - **Spaced repetition** — Anki-compatible review system (APKG import/export experimental)
 - **Separate calendar app** — ZoesCal owns day/week/month views and skins
-- **Separate journal app** — ZoesJournal owns phone-first journal entry/history/export UX
+- **Separate journal app** — ZoesJournal owns phone-first journal UX
 - **Alarms + TTS** — audio reminders via text-to-speech
 - **Media player queue** — yt-dlp integration for background audio
-- **Emergency dopamine button** — Goggins. You'll know when you need it.
+- **Emergency dopamine button** — Goggins. You will know when you need it.
 - **Webhook support** — opt-in HTTP delivery via `ENABLE_WEBHOOK_HTTP_DELIVERY=1`
 - **Local-first** — SQLite, no cloud, no accounts, your data stays yours
 
@@ -68,92 +68,85 @@ I have AuDHD. I came out of 3 years of illness and needed tools that actually wo
 | ZoesTM frontend | React + Vite + TypeScript |
 | ZoesCal backend | FastAPI + SQLite |
 | ZoesCal frontend | React + Vite + TypeScript |
-| Desktop | Electron |
+| ZoesJournal frontend | React + Vite + TypeScript |
+| Desktop shell | Electron |
 | Migrations | Plain SQL |
-| Testing | Python unittest + Playwright e2e |
+| Testing | Python unittest + smoke scripts + frontend build checks |
 
 ---
 
-## Development runtime guide
-
-See `docs/dev-runtime.md` for the honest runtime model:
-- integrated stack
-- desktop shell path
-- standalone calendar
-- standalone journal
-- ports, auth expectations, docker notes
-
-## Quick start
-
-### Prerequisites
-- Python 3.11+
-- Node.js 18+
+## Canonical commands
 
 ### Setup
 
 ```bash
-git clone https://github.com/KazAndTheCompiler/zoesTM
-cd zoesTM
-cp .env.example .env
-./scripts/bootstrap_dev.sh
-npm run dev
+npm run setup
 ```
 
-`bootstrap_dev.sh` handles the ZoesTM side. ZoesCal lives in `zoescal/` and can be started separately.
+Creates `.venv`, installs backend deps, installs root/frontend/desktop deps, runs migrations, and seeds demo data.
 
-### Start the split apps manually
-
-```bash
-# ZoesTM backend
-.venv/bin/python -m uvicorn apps.backend.app.main:app --reload --port 8000
-
-# ZoesTM frontend
-npm --prefix apps/frontend run dev
-
-# ZoesCal backend
-python3 -m uvicorn zoescal.backend.app.main:app --reload --port 8001
-
-# ZoesCal frontend
-npm --prefix zoescal/frontend run dev -- --port 5174
-
-# ZoesJournal frontend
-npm --prefix zoesjournal/frontend run dev -- --port 5175
-```
-
-### Canonical development flows
+### Dev
 
 ```bash
-# Bootstrap everything
-./scripts/bootstrap_dev.sh
-
-# Integrated stack (backend + TM + calendar + journal)
+# Integrated default: ZoesTM backend + ZoesCal backend + TM frontend + calendar frontend + journal frontend
 npm run dev
 
-# Integrated stack plus desktop shell (Electron failure is isolated)
+# Same integrated stack plus Electron shell
 npm run dev:desktop
 
-# Standalone calendar runtime
+# Standalone calendar
 npm run dev:calendar
 
-# Standalone journal runtime
+# Standalone journal
 npm run dev:journal
 ```
 
-See `docs/dev-runtime.md` for ports, auth expectations, and Docker notes.
-
-### Desktop app (Electron)
+### Build
 
 ```bash
-npm --prefix apps/desktop run start
+# Canonical supported web builds: TM + calendar + journal
+npm run build
+
+# Individual targets
+npm run build:web
+npm run build:calendar
+npm run build:journal
+npm run build:desktop
+
+# Everything, including desktop packaging
+npm run build:all
 ```
 
-### Docker
+### Test
 
 ```bash
-docker-compose up
+# Canonical repo validation
+npm test
+
+# Direct aliases
+npm run test:qa
+npm run test:backend
+npm run test:smoke
 ```
 
----
+See `docs/dev-runtime.md` for ports, auth expectations, backend ownership, and Docker notes.
+
+## Runtime model
+
+- **Integrated web stack**: all three first-party frontends together, backed by ZoesTM + ZoesCal APIs
+- **Desktop shell**: Electron shell over the integrated stack
+- **Standalone calendar**: ZoesCal frontend + ZoesCal backend
+- **Standalone journal**: ZoesJournal frontend + ZoesTM backend
+
+Important backend boundary:
+- ZoesTM exposes `/calendar/feed` as a mirror feed for ZoesCal
+- ZoesCal owns `/calendar/view`, `/calendar/range`, `/calendar/timeline`, and event CRUD
+
+## Docker
+
+```bash
+docker-compose up --build
+```
 
 ## Platform launchers
 
@@ -161,35 +154,16 @@ docker-compose up
 # Linux
 ./scripts/launcher/linux.sh
 
-# macOS  
+# macOS
 ./scripts/launcher/macos.sh
 
 # Windows
 ./scripts/launcher/windows.ps1
 ```
 
----
+## Development notes
 
-## Development
-
-### Run tests
-
-```bash
-# ZoesTM backend
-.venv/bin/python -m unittest discover -s apps/backend/tests -p "test_*.py" -q
-
-# ZoesTM frontend build check
-npm --prefix apps/frontend run build
-
-# ZoesCal frontend build check
-npm --prefix zoescal/frontend run build
-
-# Full quality pass
-./scripts/quality_pass.sh
-./scripts/qa_runner.sh
-```
-
-### Run migrations manually
+### Backend migrations
 
 ```bash
 .venv/bin/python apps/backend/scripts/migrate.py
@@ -201,35 +175,21 @@ npm --prefix zoescal/frontend run build
 .venv/bin/python apps/backend/scripts/seed.py
 ```
 
----
-
 ## Configuration
 
 Copy `.env.example` to `.env`. Key variables:
 
 | Variable | Default | Description |
 |---|---|---|
-| `ZOESTM_DEV_AUTH` | `0` | Set to `1` for local dev (bypasses auth) |
-| `ENABLE_WEBHOOK_HTTP_DELIVERY` | `0` | Set to `1` to enable real HTTP webhook delivery |
-
----
+| `ZOESTM_DEV_AUTH` | `0` | Explicit dev bypass for ZoesTM auth |
+| `ZOESTM_ENFORCE_AUTH` | `0` | Require explicit scope headers even for local clients |
+| `ENABLE_WEBHOOK_HTTP_DELIVERY` | `0` | Enable real HTTP webhook delivery |
 
 ## Known intentional limits
 
-- **APKG import/export** is experimental — uses a simplified package layout, not full Anki fidelity
-- **Webhook delivery** defaults to local stub mode unless `ENABLE_WEBHOOK_HTTP_DELIVERY=1`
-- **Desktop packaging/signing** is out of scope for now
-
----
-
-## Roadmap
-
-- [ ] Full calendar with skins (Still fighting polish bugs)
-- [ ] Emergency dopamine button with rotating labels
-- [ ] Full Anki spaced repetition fidelity
-- [ ] Mobile-friendly UI
-
----
+- **APKG import/export** is experimental
+- **Webhook delivery** defaults to local stub mode unless explicitly enabled
+- **Desktop packaging/signing** is still a separate packaging path, not part of default dev validation
 
 ## Support
 
@@ -239,14 +199,8 @@ If it helps you and you want to say thanks:
 
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-orange?style=flat&logo=buy-me-a-coffee)](https://buymeacoffee.com/kazandthecompiler)
 
-Donations go toward keeping the project alive and possibly upgrading the salvaged 2011 laptop it was partly developed on.
-
----
-
 ## License
 
 MIT — do whatever you want with it.
 
----
-
-*Built by [KazAndTheCompiler](https://github.com/KazAndTheCompiler) — 2 months into learning, built something anyway.*
+*Built by [KazAndTheCompiler](https://github.com/KazAndTheCompiler).*
