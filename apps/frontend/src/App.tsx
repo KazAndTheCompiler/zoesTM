@@ -346,6 +346,10 @@ export default function App() {
     window.open('http://localhost:5174', '_blank', 'noopener,noreferrer');
   }
 
+  function openZoesJournal() {
+    window.open('http://localhost:5175', '_blank', 'noopener,noreferrer');
+  }
+
   async function runQuick() {
     setQuickError(null);
     setQuickResult(null);
@@ -578,6 +582,20 @@ export default function App() {
             {!compact && <p className="task-due" style={{ margin: 0 }}>Open the dedicated day, week, and month views on port 5174.</p>}
           </div>
           <button onClick={openZoesCal}>Open ZoesCal</button>
+        </div>
+      </BoxCard>
+    );
+  }
+
+  function ZoesJournalBox({ compact = false }: { compact?: boolean }) {
+    return (
+      <BoxCard title="ZoesJournal" compact={compact} testId="box-zoesjournal">
+        <div className="row-group" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <p style={{ margin: '0 0 6px 0' }}>Journal now also lives in a separate mobile-first companion app.</p>
+            {!compact && <p className="task-due" style={{ margin: 0 }}>Open day entry, history, and export on port 5175 while keeping backend data in ZoesTM.</p>}
+          </div>
+          <button onClick={openZoesJournal}>Open ZoesJournal</button>
         </div>
       </BoxCard>
     );
@@ -926,6 +944,7 @@ export default function App() {
           ⌘ <input value={cmd} onChange={(e) => setCmd(e.target.value)} placeholder="add task …" aria-label="Command input" onKeyDown={(e) => e.key === 'Enter' && runCmd()} />
           <button onClick={runCmd}>Run</button>
           <button onClick={openZoesCal}>Launch ZoesCal</button>
+          <button onClick={openZoesJournal}>Launch ZoesJournal</button>
         </div>
         <div className="status-strip" aria-live="off">
           Route: /{route} • Focus: {focus?.status || 'idle'} • API: {apiMeta?.info?.title || 'offline'}
@@ -937,6 +956,7 @@ export default function App() {
             <div className="overview-grid" data-testid="overview-grid">
               {TasksBox({ compact: true })}
               {ZoesCalBox({ compact: true })}
+              {ZoesJournalBox({ compact: true })}
               {FocusBox({ compact: true })}
               {AlarmPlayerBox({ compact: true })}
               {HabitsBox({ compact: true })}

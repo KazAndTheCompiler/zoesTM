@@ -5,7 +5,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-os.environ['ZOESTM_DEV_AUTH'] = '1'
+os.environ['ZOESTM_DEV_AUTH'] = '0'
+os.environ['ZOESTM_ENFORCE_AUTH'] = '0'
+os.environ['ZOESTM_TRUST_LOCAL_CLIENTS'] = '1'
 
 from fastapi.testclient import TestClient
 
@@ -26,7 +28,7 @@ class JournalApiBase(unittest.TestCase):
                 c.executescript(mig.read_text(encoding='utf-8'))
 
         db.DB_PATH = cls._db_path
-        cls.client = TestClient(app)
+        cls.client = TestClient(app, headers={'origin': 'http://localhost:5175'})
 
     @classmethod
     def tearDownClass(cls):
@@ -115,6 +117,25 @@ class TestJournalApi(JournalApiBase):
         resp = self.client.get('/meta')
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.json()['version'])
+
+    def test_local_first_party_origin_can_use_journal_without_scope_header(self):
+        resp = self.client.get('/journal/?limit=60', headers={'origin': 'http://localhost:5175'})
+        self.assertEqual(resp.status_code, 200)
+
+        preflight = self.client.options(
+            '/journal/',
+            headers={
+                'origin': 'http://localhost:5175',
+                'access-control-request-method': 'POST',
+                'access-control-request-headers': 'content-type,x-token-scopes',
+            },
+        )
+        self.assertIn(preflight.status_code, (200, 204))
+        self.assertEqual(preflight.headers.get('access-control-allow-origin'), 'http://localhost:5175')
+
+    def test_untrusted_origin_without_scopes_is_forbidden(self):
+        resp = self.client.get('/journal/?limit=60', headers={'origin': 'https://evil.example'})
+        self.assertEqual(resp.status_code, 403)
 
 
 if __name__ == '__main__':

@@ -70,6 +70,9 @@ async def sync_zoestm_feed_safe() -> dict[str, int]:
         result = await sync_zoestm_feed()
         logger.info("zoestm_sync_complete", extra=result)
         return result
+    except httpx.ConnectError:
+        logger.info("zoestm_sync_waiting_for_feed")
+        return {"entries": 0}
     except Exception:
         logger.exception("zoestm_sync_failed")
         return {"entries": 0}

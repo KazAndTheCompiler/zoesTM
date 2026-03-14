@@ -1,4 +1,4 @@
-export const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8001';
+export const BASE = import.meta.env.VITE_API_URL || (globalThis.location?.protocol === 'file:' ? 'http://127.0.0.1:8001' : '/api');
 
 async function apiFetch(path: string, opts: RequestInit = {}) {
   const res = await fetch(`${BASE}${path}`, {

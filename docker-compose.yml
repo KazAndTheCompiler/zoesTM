@@ -3,7 +3,6 @@ version: '3.8'
 services:
   zoestm-api:
     build: .
-    container_name: zoestm-api
     ports:
       - "${PORT:-8000}:8000"
     environment:

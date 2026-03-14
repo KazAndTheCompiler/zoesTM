@@ -74,6 +74,15 @@ I have AuDHD. I came out of 3 years of illness and needed tools that actually wo
 
 ---
 
+## Development runtime guide
+
+See `docs/dev-runtime.md` for the honest runtime model:
+- integrated stack
+- desktop shell path
+- standalone calendar
+- standalone journal
+- ports, auth expectations, docker notes
+
 ## Quick start
 
 ### Prerequisites
@@ -110,6 +119,27 @@ npm --prefix zoescal/frontend run dev -- --port 5174
 # ZoesJournal frontend
 npm --prefix zoesjournal/frontend run dev -- --port 5175
 ```
+
+### Canonical development flows
+
+```bash
+# Bootstrap everything
+./scripts/bootstrap_dev.sh
+
+# Integrated stack (backend + TM + calendar + journal)
+npm run dev
+
+# Integrated stack plus desktop shell (Electron failure is isolated)
+npm run dev:desktop
+
+# Standalone calendar runtime
+npm run dev:calendar
+
+# Standalone journal runtime
+npm run dev:journal
+```
+
+See `docs/dev-runtime.md` for ports, auth expectations, and Docker notes.
 
 ### Desktop app (Electron)
 

@@ -29,6 +29,7 @@ from .routers import anki_apkg
 from .services.outbox_worker import snapshot_metrics
 from .services import alarm_scheduler
 from .db import conn, close_connection
+from .config import settings
 
 
 def run_migrations():
@@ -73,15 +74,7 @@ app = FastAPI(title="Zoe'sTM API", version="1.0.0-rc1", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://127.0.0.1:5173",
-        "http://localhost:5173",
-        "http://127.0.0.1:5174",
-        "http://localhost:5174",
-        "http://127.0.0.1:3000",
-        "app://.",  # Electron production
-        "file://",  # Electron dev fallback
-    ],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

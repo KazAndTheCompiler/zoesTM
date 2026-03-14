@@ -33,3 +33,6 @@ dist/
 build/
 apps/frontend/dist/
 zoescal/frontend/dist/
+
+# TypeScript build info
+*.tsbuildinfo

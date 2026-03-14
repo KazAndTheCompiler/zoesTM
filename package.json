@@ -4,15 +4,23 @@
   "version": "0.9.0-rc1",
   "scripts": {
     "bootstrap": "./scripts/bootstrap_dev.sh",
-    "dev:backend": ". .venv/bin/activate && uvicorn apps.backend.app.main:app --reload --port 8000",
+    "dev:backend": "./scripts/dev_backend.sh",
     "dev:frontend": "npm --prefix apps/frontend run dev",
-    "dev:desktop": "npm --prefix apps/desktop run start",
-    "dev": "concurrently --kill-others-on-fail -n backend,frontend,desktop -c cyan,green,magenta \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:desktop\"",
+    "dev:desktop": "./scripts/dev_desktop.sh",
+    "dev": "npm run dev:stack",
     "build": "npm --prefix apps/frontend run build",
     "test": "./scripts/quality_pass.sh && ./scripts/qa_runner.sh",
     "lint": "./scripts/qa_lint.sh",
-    "dev:journal": "npm --prefix zoesjournal/frontend run dev",
-    "build:journal": "npm --prefix zoesjournal/frontend run build"
+    "dev:journal": "concurrently -n api,journal -c cyan,yellow \"npm run dev:backend\" \"npm run dev:journal:frontend\"",
+    "build:journal": "npm --prefix zoesjournal/frontend run build",
+    "dev:calendar": "concurrently -n cal-api,calendar -c cyan,magenta \"npm run dev:calendar-backend\" \"npm run dev:calendar:frontend\"",
+    "dev:desktop-shell": "./scripts/dev_desktop_shell.sh",
+    "dev:stack": "concurrently -n backend,cal-api,tm,calendar,journal -c cyan,blue,green,magenta,yellow \"npm run dev:backend\" \"npm run dev:calendar-backend\" \"npm run dev:frontend\" \"npm run dev:calendar:frontend\" \"npm run dev:journal:frontend\"",
+    "build:calendar": "npm --prefix zoescal/frontend run build",
+    "build:desktop": "npm --prefix apps/desktop run build",
+    "dev:calendar-backend": "./scripts/dev_zoescal_backend.sh",
+    "dev:calendar:frontend": "npm --prefix zoescal/frontend run dev",
+    "dev:journal:frontend": "npm --prefix zoesjournal/frontend run dev"
   },
   "devDependencies": {
     "concurrently": "^9.0.1"

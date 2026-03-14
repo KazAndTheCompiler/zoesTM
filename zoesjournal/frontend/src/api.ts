@@ -1,4 +1,4 @@
-export const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+export const BASE = import.meta.env.VITE_API_URL || (globalThis.location?.protocol === 'file:' ? 'http://127.0.0.1:8000' : '/api');
 
 declare global {
   interface Window {
